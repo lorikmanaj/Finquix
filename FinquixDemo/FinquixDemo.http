@@ -1,0 +1,6 @@
+@FinquixDemo_HostAddress = http://localhost:5055
+
+GET {{FinquixDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
