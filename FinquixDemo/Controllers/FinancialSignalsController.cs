@@ -13,8 +13,8 @@ namespace FinquixDemo.Controllers
         public decimal changePercentage { get; set; }
     }
 
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/signals")]
     public class FinancialSignalsController(HttpClient httpClient, IConfiguration configuration, ILogger<FinancialSignalsController> logger) : ControllerBase
     {
         private readonly HttpClient _httpClient = httpClient;
@@ -50,22 +50,22 @@ namespace FinquixDemo.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetFinancialSignalsOLD()
-        {
-            try
-            {
-                string fmpUrl = $"https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey={_fmpApiKey}";
-                var response = await _httpClient.GetStringAsync(fmpUrl);
+        //[HttpGet]
+        //public async Task<IActionResult> GetFinancialSignalsOLD()
+        //{
+        //    try
+        //    {
+        //        string fmpUrl = $"https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey={_fmpApiKey}";
+        //        var response = await _httpClient.GetStringAsync(fmpUrl);
 
-                var data = JsonSerializer.Deserialize<object>(response);
-                return Ok(data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching financial signals");
-                return StatusCode(500, "Error fetching data");
-            }
-        }
+        //        var data = JsonSerializer.Deserialize<object>(response);
+        //        return Ok(data);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error fetching financial signals");
+        //        return StatusCode(500, "Error fetching data");
+        //    }
+        //}
     }
 }
