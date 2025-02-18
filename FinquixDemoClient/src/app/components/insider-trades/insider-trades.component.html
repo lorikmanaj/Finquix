@@ -1,0 +1,32 @@
+<div class="container">
+    <h2>Insider Trading Activity</h2>
+
+    <label for="symbol">Stock Symbol:</label>
+    <input id="symbol" type="text" [(ngModel)]="symbol" />
+    <button (click)="loadTrades()">Fetch Data</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Transaction Date</th>
+                <th>Type</th>
+                <th>Shares Traded</th>
+                <th>Price</th>
+                <th>Owner</th>
+                <th>Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let trade of trades">
+                <td>{{ trade.symbol }}</td>
+                <td>{{ trade.transactionDate }}</td>
+                <td>{{ trade.transactionType }}</td>
+                <td>{{ trade.securitiesTransacted }}</td>
+                <td>${{ trade.price }}</td>
+                <td>{{ trade.reportingName }}</td>
+                <td><a [href]="trade.link" target="_blank">View Filing</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

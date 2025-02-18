@@ -1,89 +1,73 @@
-
-using FinquixDemo.Infrastructure;
+﻿using FinquixDemo.Infrastructure;
 
 namespace FinquixDemo
 {
     public class Program
     {
-        //public static void Main(string[] args)
-        //{
-        //    var builder = WebApplication.CreateBuilder(args);
-
-        //    // Add services to the container.
-
-        //    builder.Services.AddControllers();
-        //    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        //    builder.Services.AddEndpointsApiExplorer();
-        //    builder.Services.AddSwaggerGen();
-
-        //    var app = builder.Build();
-
-        //    // Configure the HTTP request pipeline.
-        //    if (app.Environment.IsDevelopment())
-        //    {
-        //        app.UseSwagger();
-        //        app.UseSwaggerUI();
-        //    }
-
-        //    app.UseHttpsRedirection();
-
-        //    app.UseAuthorization();
-
-
-        //    app.MapControllers();
-
-        //    app.Run();
-        //}
-
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Configure the application to load environment-specific settings
             ConfigureAppConfiguration(builder);
 
             ConfigureServices(builder.Services, builder.Configuration);
 
             builder.Services.AddHttpClient();
 
-            // Add logging
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
 
             var app = builder.Build();
-            //app.RunMigrations();
 
             ConfigureApp(app);
 
             app.Run();
         }
 
+        /// <summary>
+        /// Loads environment-specific configurations, including JSON files and environment variables.
+        /// </summary>
         private static void ConfigureAppConfiguration(WebApplicationBuilder builder)
         {
             var environment = builder.Environment.EnvironmentName;
 
-            // Load the appsettings.json first
-            //builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            //                     .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
+            // ✅ Load base config file
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
-            // If the environment is "Local", load appsettings.Local.json
-            //if (environment == "Local")
-            //    builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+            // ✅ Load additional local config if needed
+            if (environment == "Local")
+                builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
+            // ✅ Load environment variables
             builder.Configuration.AddEnvironmentVariables();
         }
 
+        /// <summary>
+        /// Registers all services and dependencies in the DI container.
+        /// </summary>
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddInfrastructure(configuration);
 
+            var fmpApiKey = configuration["FMP_API_KEY"];
+            if (string.IsNullOrEmpty(fmpApiKey))
+            {
+                throw new ArgumentNullException(nameof(fmpApiKey), "FMP API Key is missing in configuration.");
+            }
+
             services.AddSwagger();
+
+            services.AddCustomCors(configuration);
 
             services.AddControllers()
                     .AddJsonOptions(options =>
                         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
         }
 
+        /// <summary>
+        /// Configures the application's middleware pipeline.
+        /// </summary>
         private static void ConfigureApp(WebApplication app)
         {
             if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
@@ -91,6 +75,10 @@ namespace FinquixDemo
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // ✅ CORS should come before `UseRouting()`
+            app.UseCors("AllowSpecificOrigins");
+
             app.UseHttpsRedirection();
             app.UseRouting();
 

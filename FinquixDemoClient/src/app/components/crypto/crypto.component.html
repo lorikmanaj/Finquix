@@ -1,0 +1,40 @@
+<div class="container">
+    <h2>Crypto Market Data</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Change (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let crypto of cryptoQuotes">
+                <td>{{ crypto.symbol }}</td>
+                <td>{{ crypto.name }}</td>
+                <td>${{ crypto.price }}</td>
+                <td [ngClass]="{'positive': crypto.change > 0, 'negative': crypto.change < 0}">
+                    {{ crypto.change | number: '1.2-2' }}
+                </td>
+                <td [ngClass]="{'positive': crypto.changePercentage > 0, 'negative': crypto.changePercentage < 0}">
+                    {{ crypto.changePercentage | number: '1.2-2' }}%
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Crypto Historical Data</h3>
+    <input [(ngModel)]="selectedCrypto" placeholder="Enter symbol (e.g., BTCUSD)">
+    <button (click)="loadCryptoHistory()">Get History</button>
+
+    <div *ngIf="cryptoHistory">
+        <p><strong>Date:</strong> {{ cryptoHistory.date }}</p>
+        <p><strong>Open:</strong> ${{ cryptoHistory.open }}</p>
+        <p><strong>High:</strong> ${{ cryptoHistory.high }}</p>
+        <p><strong>Low:</strong> ${{ cryptoHistory.low }}</p>
+        <p><strong>Close:</strong> ${{ cryptoHistory.close }}</p>
+    </div>
+</div>

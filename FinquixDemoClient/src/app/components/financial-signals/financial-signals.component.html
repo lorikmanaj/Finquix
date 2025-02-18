@@ -1,0 +1,27 @@
+<div class="container">
+    <h2>Financial Market Signals</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Change (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let signal of signals">
+                <td>{{ signal.symbol }}</td>
+                <td>{{ signal.name }}</td>
+                <td>${{ signal.price }}</td>
+                <td [ngClass]="{'positive': signal.change > 0, 'negative': signal.change < 0}">
+                    {{ signal.change | number: '1.2-2' }}
+                </td>
+                <td [ngClass]="{'positive': signal.changePercentage > 0, 'negative': signal.changePercentage < 0}">
+                    {{ signal.changePercentage | number: '1.2-2' }}%
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
