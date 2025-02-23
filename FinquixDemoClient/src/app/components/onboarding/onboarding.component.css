@@ -1,0 +1,16 @@
+/* src/app/components/onboarding/onboarding.component.css */
+.onboarding-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+mat-card {
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+mat-form-field {
+    width: 100%;
+    margin-bottom: 10px;
+}

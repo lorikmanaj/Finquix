@@ -18,6 +18,7 @@ namespace FinquixDemo
             builder.Logging.AddConsole();
 
             var app = builder.Build();
+            app.RunMigrations();
 
             ConfigureApp(app);
 

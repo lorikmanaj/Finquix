@@ -1,0 +1,21 @@
+/* src/app/app.component.css */
+
+nav {
+    display: flex;
+    gap: 15px;
+    background-color: #1f1f2e;
+    padding: 10px;
+}
+
+button {
+    color: white;
+    background-color: #3a3a5e;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #5e5ea1;
+}

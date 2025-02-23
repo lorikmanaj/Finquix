@@ -1,14 +1,17 @@
-﻿namespace FinquixDemo.Infrastructure
+﻿using FinquixDemo.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+
+namespace FinquixDemo.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //{
-            //    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-            //        b => b.MigrationsAssembly("ProducingAPI"));
-            //});
+            services.AddDbContext<FinquixDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("FinquixDemo"));
+            });
 
             services.AddHttpContextAccessor();
             //services.AddRepositories();
