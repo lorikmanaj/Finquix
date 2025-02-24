@@ -8,5 +8,7 @@ namespace FinquixDemo.Infrastructure.Database
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<FinancialGoal> FinancialGoals { get; set; }
         public DbSet<FinancialData> FinancialData { get; set; }
+        public DbSet<FinancialSignal> FinancialSignals { get; set; }
+        public DbSet<CryptoAsset> CryptoAssets { get; set; }
     }
 }

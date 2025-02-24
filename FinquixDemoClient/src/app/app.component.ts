@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FinancialSignalsComponent } from './components/financial-signals/financial-signals.component';
 import { HttpClientModule } from '@angular/common/http';
-import { CryptoComponent } from './components/crypto/crypto.component';
+import { CryptoMarketComponent } from './components/crypto-market/crypto-market.component';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +12,7 @@ import { CryptoComponent } from './components/crypto/crypto.component';
     RouterOutlet,
     HttpClientModule,
     FinancialSignalsComponent,
-    CryptoComponent
+    CryptoMarketComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

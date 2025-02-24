@@ -38,21 +38,26 @@ export class OnboardingComponent {
       age: [''],
       employmentStatus: [''],
       dependents: [''],
-      income: [''],
-      fixedExpenses: [''],
-      variableExpenses: [''],
-      savingsRate: [''],
+      financialGoals: this.fb.group({
+        debtRepayment: [false],
+        housePurchase: [false],
+        retirement: [false],
+        saveForEducation: [false]
+      }),
+      financialData: this.fb.group({
+        income: [''],
+        fixedExpenses: [''],
+        variableExpenses: [''],
+        savingsRate: ['']
+      }),
       riskTolerance: ['Medium']
     });
   }
 
   submit() {
     const formData = this.onboardingForm.value;
-    console.log('Submitting Onboarding Data:', formData);
-
     this.userProfileService.submitOnboarding(formData).subscribe({
       next: (response) => {
-        console.log('Successfully submitted:', response);
         this.router.navigate(['/dashboard'], { queryParams: { userId: response.id } });
       },
       error: (error) => {

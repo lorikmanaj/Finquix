@@ -1,13 +1,11 @@
 <h2>Dashboard</h2>
 <p>Welcome to your financial dashboard!</p>
 
-<h2>User Dashboard</h2>
-
 <div *ngIf="userProfile; else noData">
     <h3>Welcome, {{ userProfile.name }}!</h3>
     <p><strong>Age:</strong> {{ userProfile.age }}</p>
     <p><strong>Employment Status:</strong> {{ userProfile.employmentStatus }}</p>
-    <p><strong>Risk Tolerance:</strong> {{ userProfile.financialData?.riskTolerance }}</p>
+    <p><strong>Risk Tolerance:</strong> {{ userProfile.riskTolerance }}</p>
 
     <h3>Financial Goals</h3>
     <ul>

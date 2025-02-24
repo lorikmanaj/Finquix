@@ -6,27 +6,19 @@ import { ApiService } from '../global/api.service';
   providedIn: 'root'
 })
 export class UserProfileService {
-  private readonly path = 'UserProfile';
+  private readonly path = 'UserProfile'; // Fixed route to match controller
 
   constructor(private apiService: ApiService) { }
 
-  // Submit onboarding data
   submitOnboarding(data: any): Observable<any> {
     return this.apiService.post<any, any>(`${this.path}/submit-onboarding`, data);
   }
 
-  // Get all user profiles
   getUserProfiles(): Observable<any[]> {
     return this.apiService.get<any[]>(`${this.path}`);
-  }  
-
-  // Get a single user profile by ID
-  getUserProfileById(id: number): Observable<any> {
-    return this.apiService.get<any>(`${this.path}/${id}`);
   }
 
-  // Create a new user profile
-  createUserProfile(data: any): Observable<any> {
-    return this.apiService.post<any, any>(`${this.path}`, data);
+  getUserProfileById(id: number): Observable<any> {
+    return this.apiService.get<any>(`${this.path}/${id}`);
   }
 }

@@ -13,7 +13,6 @@ import { ActivatedRoute } from '@angular/router';
 export class DashboardComponent implements OnInit {
   userProfile: any = null;
 
-  // Inject ActivatedRoute into the constructor
   constructor(private userProfileService: UserProfileService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -22,7 +21,6 @@ export class DashboardComponent implements OnInit {
       this.userProfileService.getUserProfileById(userId).subscribe({
         next: (data) => {
           this.userProfile = data;
-          console.log('User Profile:', this.userProfile);
         },
         error: (err) => console.error('Failed to load user profile:', err)
       });

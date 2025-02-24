@@ -1,4 +1,5 @@
 ﻿using FinquixDemo.Infrastructure.Database;
+using FinquixDemo.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinquixDemo.Infrastructure
@@ -14,6 +15,7 @@ namespace FinquixDemo.Infrastructure
             });
 
             services.AddHttpContextAccessor();
+            services.AddHostedService<MarketDataSimulatorService>();
             //services.AddRepositories();
             //services.AddStorageManager(configuration);
             //services.AddServices();
@@ -33,7 +35,7 @@ namespace FinquixDemo.Infrastructure
         {
             var allowedOrigins = configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
 
-            if (allowedOrigins == null || !allowedOrigins.Any())
+            if (allowedOrigins == null || allowedOrigins.Length == 0)
             {
                 throw new InvalidOperationException("CORS configuration is missing or empty in appsettings.json.");
             }
