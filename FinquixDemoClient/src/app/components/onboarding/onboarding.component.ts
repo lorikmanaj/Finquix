@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
+import { UserProfileService } from '../../../services/components/user-profile.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -27,7 +28,11 @@ import { Router } from '@angular/router';
 export class OnboardingComponent {
   onboardingForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private userProfileService: UserProfileService
+  ) {
     this.onboardingForm = this.fb.group({
       name: [''],
       age: [''],
@@ -42,7 +47,17 @@ export class OnboardingComponent {
   }
 
   submit() {
-    console.log('User Data:', this.onboardingForm.value);
-    this.router.navigate(['/dashboard']);
+    const formData = this.onboardingForm.value;
+    console.log('Submitting Onboarding Data:', formData);
+
+    this.userProfileService.submitOnboarding(formData).subscribe({
+      next: (response) => {
+        console.log('Successfully submitted:', response);
+        this.router.navigate(['/dashboard'], { queryParams: { userId: response.id } });
+      },
+      error: (error) => {
+        console.error('Submission failed:', error);
+      }
+    });
   }
 }

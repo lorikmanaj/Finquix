@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FinancialSignalsComponent } from './components/financial-signals/financial-signals.component';
 import { HttpClientModule } from '@angular/common/http';
 import { CryptoComponent } from './components/crypto/crypto.component';
@@ -8,6 +8,7 @@ import { CryptoComponent } from './components/crypto/crypto.component';
   selector: 'app-root',
   standalone: true,
   imports: [
+    RouterModule,
     RouterOutlet,
     HttpClientModule,
     FinancialSignalsComponent,
@@ -18,4 +19,13 @@ import { CryptoComponent } from './components/crypto/crypto.component';
 })
 export class AppComponent {
   title = 'FinquixDemoClient';
+
+  // In your component or constructor
+  constructor(private router: Router) { }
+
+  // Call this method to navigate
+  goToOnboarding() {
+    this.router.navigate(['/onboarding']);
+  }
+
 }

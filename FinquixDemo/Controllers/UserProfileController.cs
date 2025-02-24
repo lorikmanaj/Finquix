@@ -42,5 +42,19 @@ namespace FinquixDemo.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetUserProfile), new { id = userProfile.Id }, userProfile);
         }
+
+        [HttpPost("submit-onboarding")]
+        public async Task<IActionResult> SubmitOnboarding([FromBody] UserProfile userProfile)
+        {
+            if (userProfile == null)
+            {
+                return BadRequest("Invalid onboarding data.");
+            }
+
+            _context.UserProfiles.Add(userProfile);
+            await _context.SaveChangesAsync();
+
+            return Ok(userProfile);
+        }
     }
 }
