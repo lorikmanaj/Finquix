@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    @* <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> *@
+</div>
+<form asp-controller="DSchatCon" asp-action="Kerko1" method="get">
+    <p>
+        Parashtroje pyetjen: <input type="text" name="Teksti" />
+        <input type="submit" value="Kerko" />
+    </p>
+</form>
+<p style="border-width:3px; border-style:solid; border-color:#FF0000; padding: 1em;">@ViewBag.Answer</p>
