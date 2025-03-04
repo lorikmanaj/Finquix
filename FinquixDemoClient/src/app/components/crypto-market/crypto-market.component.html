@@ -1,0 +1,27 @@
+<div class="crypto-market-container">
+    <h2>Live Crypto Market</h2>
+    <button (click)="simulateMarket()">Simulate Market Update</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Current Price</th>
+                <th>Change (%)</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let asset of cryptoAssets">
+                <td>{{ asset.symbol }}</td>
+                <td>{{ asset.name }}</td>
+                <td>${{ asset.currentPrice | number: '1.2-2' }}</td>
+                <td [ngClass]="{ 'positive': asset.changePercent > 0, 'negative': asset.changePercent < 0 }">
+                    {{ asset.changePercent | number: '1.2-2' }}%
+                </td>
+                <td>{{ asset.lastUpdated | date: 'short' }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

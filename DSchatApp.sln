@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSchatApp", "DSchatApp\DSchatApp.csproj", "{9FDD2608-C198-419B-B4DF-3D0C4DD59D43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinquixAPI", "FinquixAPI\FinquixAPI.csproj", "{997D81C8-F6D0-4A9D-8346-5336E90F2CB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{9FDD2608-C198-419B-B4DF-3D0C4DD59D43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FDD2608-C198-419B-B4DF-3D0C4DD59D43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FDD2608-C198-419B-B4DF-3D0C4DD59D43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{997D81C8-F6D0-4A9D-8346-5336E90F2CB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{997D81C8-F6D0-4A9D-8346-5336E90F2CB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{997D81C8-F6D0-4A9D-8346-5336E90F2CB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{997D81C8-F6D0-4A9D-8346-5336E90F2CB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

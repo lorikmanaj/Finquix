@@ -1,0 +1,26 @@
+<h2>Dashboard</h2>
+<p>Welcome to your financial dashboard!</p>
+
+<div *ngIf="userProfile; else noData">
+    <h3>Welcome, {{ userProfile.name }}!</h3>
+    <p><strong>Age:</strong> {{ userProfile.age }}</p>
+    <p><strong>Employment Status:</strong> {{ userProfile.employmentStatus }}</p>
+    <p><strong>Risk Tolerance:</strong> {{ userProfile.riskTolerance }}</p>
+
+    <h3>Financial Goals</h3>
+    <ul>
+        <li *ngFor="let goal of userProfile.financialGoals">
+            {{ goal.goalType }} - {{ goal.isActive ? 'Active' : 'Inactive' }}
+        </li>
+    </ul>
+
+    <h3>Income & Expenses</h3>
+    <p><strong>Income:</strong> ${{ userProfile.financialData?.income }}</p>
+    <p><strong>Fixed Expenses:</strong> ${{ userProfile.financialData?.fixedExpenses }}</p>
+    <p><strong>Variable Expenses:</strong> ${{ userProfile.financialData?.variableExpenses }}</p>
+    <p><strong>Savings Rate:</strong> {{ userProfile.financialData?.savingsRate }}%</p>
+</div>
+
+<ng-template #noData>
+    <p>No user data available. Please complete onboarding first.</p>
+</ng-template>

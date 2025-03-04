@@ -1,0 +1,72 @@
+<div class="onboarding-container">
+    <h2>Financial Onboarding</h2>
+    <form [formGroup]="onboardingForm" (ngSubmit)="submit()">
+        <mat-card>
+            <mat-form-field appearance="outline">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Age</mat-label>
+                <input matInput formControlName="age" type="number" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Employment Status</mat-label>
+                <input matInput formControlName="employmentStatus" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Dependents</mat-label>
+                <input matInput formControlName="dependents" type="number" />
+            </mat-form-field>
+        </mat-card>
+
+        <mat-card>
+            <h3>Financial Goals</h3>
+            <div formGroupName="financialGoals">
+                <mat-checkbox formControlName="debtRepayment">Pay Off Debt</mat-checkbox><br />
+                <mat-checkbox formControlName="housePurchase">Buy a House</mat-checkbox><br />
+                <mat-checkbox formControlName="retirement">Retirement</mat-checkbox><br />
+                <mat-checkbox formControlName="saveForEducation">Save for Education</mat-checkbox>
+            </div>
+        </mat-card>
+
+        <mat-card>
+            <h3>Income & Expenses</h3>
+            <div formGroupName="financialData">
+                <mat-form-field appearance="outline">
+                    <mat-label>Monthly Income</mat-label>
+                    <input matInput formControlName="income" type="number" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Fixed Expenses</mat-label>
+                    <input matInput formControlName="fixedExpenses" type="number" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Variable Expenses</mat-label>
+                    <input matInput formControlName="variableExpenses" type="number" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Savings Rate (%)</mat-label>
+                    <input matInput formControlName="savingsRate" type="number" />
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Risk Tolerance</mat-label>
+                <mat-select formControlName="riskTolerance">
+                    <mat-option value="Low">Low</mat-option>
+                    <mat-option value="Medium">Medium</mat-option>
+                    <mat-option value="High">High</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-card>
+
+        <button mat-raised-button color="primary" type="submit">Submit & View Dashboard</button>
+    </form>
+</div>
