@@ -2,6 +2,8 @@
 using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using Microsoft.SemanticKernel;
+using Codeblaze.SemanticKernel.Connectors.Ollama;
 
 namespace FinquixAPI.Controllers.AI
 {
@@ -16,73 +18,89 @@ namespace FinquixAPI.Controllers.AI
             _httpClient = httpClient;
         }
 
-        /// <summary>
-        /// Calls the Ollama API directly.
-        /// </summary>
-        [HttpPost("kerko1")]
-        public async Task<IActionResult> Kerko1([FromBody] string teksti)
+
+        [HttpPost("Kerko1")]
+        public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti)
         {
-            try
-            {
-                string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
-
-                var requestData = new
-                {
-                    model = "llama3.2",
-                    prompt = teksti
-                };
-
-                var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
-                response.EnsureSuccessStatusCode();
-
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var parsedJson = JObject.Parse(responseBody);
-                string answer = parsedJson["response"]?.ToString() ?? "No response";
-
-                return Ok(new { Answer = answer });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Answer = "Gabim", Error = ex.Message });
-            }
+            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");//llama3.2
+            kbuilder.Services.AddScoped<HttpClient>();
+            var kernel = kbuilder.Build();
+            Answer ans = new Answer();
+           
+            var response = await kernel.InvokePromptAsync(Teksti);
+            ans.AnswerDS = (response.ToString()).Substring(17);
+           
+            yield return ans;
         }
 
-        /// <summary>
-        /// Calls another AI API (OpenAI-style).
-        /// </summary>
-        [HttpPost("kerko")]
-        public async Task<IActionResult> Kerko([FromBody] string teksti)
-        {
-            try
-            {
-                string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
 
-                var requestData = new
-                {
-                    model = "Llama 3 8B Instruct",
-                    max_tokens = 2048,
-                    messages = new[]
-                    {
-                        new { role = "system", content = "You are an AI assistant." },
-                        new { role = "user", content = teksti }
-                    }
-                };
+        ///// <summary>
+        ///// Calls the Ollama API directly.
+        ///// </summary>
+        //[HttpPost("kerko1")]
+        //public async Task<IActionResult> Kerko1([FromBody] string teksti)
+        //{
+        //    try
+        //    {
+        //        string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
 
-                var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
-                response.EnsureSuccessStatusCode();
+        //        var requestData = new
+        //        {
+        //            model = "llama3.2",
+        //            prompt = teksti
+        //        };
 
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var parsedJson = JObject.Parse(responseBody);
-                string answer = parsedJson["choices"]?[0]?["messages"]?["content"]?.ToString() ?? "No response";
+        //        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+        //        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+        //        response.EnsureSuccessStatusCode();
 
-                return Ok(new { Answer = answer });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Answer = "Gabim", Error = ex.Message });
-            }
-        }
+        //        var responseBody = await response.Content.ReadAsStringAsync();
+        //        var parsedJson = JObject.Parse(responseBody);
+        //        string answer = parsedJson["response"]?.ToString() ?? "No response";
+
+        //        return Ok(new { Answer = answer });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Calls another AI API (OpenAI-style).
+        ///// </summary>
+        //[HttpPost("kerko")]
+        //public async Task<IActionResult> Kerko([FromBody] string teksti)
+        //{
+        //    try
+        //    {
+        //        string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
+
+        //        var requestData = new
+        //        {
+        //            model = "Llama 3 8B Instruct",
+        //            max_tokens = 2048,
+        //            messages = new[]
+        //            {
+        //                new { role = "system", content = "You are an AI assistant." },
+        //                new { role = "user", content = teksti }
+        //            }
+        //        };
+
+        //        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+        //        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+        //        response.EnsureSuccessStatusCode();
+
+        //        var responseBody = await response.Content.ReadAsStringAsync();
+        //        var parsedJson = JObject.Parse(responseBody);
+        //        string answer = parsedJson["choices"]?[0]?["messages"]?["content"]?.ToString() ?? "No response";
+
+        //        return Ok(new { Answer = answer });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
+        //    }
+        //}
     }
 }
