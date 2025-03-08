@@ -16,34 +16,47 @@ namespace FinquixAPI.Controllers.AI
             _httpClient = httpClient;
         }
 
+        /// <summary>
+        /// Calls the Ollama API directly.
+        /// </summary>
         [HttpPost("kerko1")]
         public async Task<IActionResult> Kerko1([FromBody] string teksti)
         {
             try
             {
-                var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
-                kbuilder.Services.AddScoped<HttpClient>();
-                var kernel = kbuilder.Build();
+                string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
 
-                var response = await kernel.InvokePromptAsync(teksti);
-                string answer = response.ToString().Contains("<think>")
-                    ? response.ToString().Substring(17)
-                    : response.ToString();
+                var requestData = new
+                {
+                    model = "llama3.2",
+                    prompt = teksti
+                };
+
+                var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+                response.EnsureSuccessStatusCode();
+
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var parsedJson = JObject.Parse(responseBody);
+                string answer = parsedJson["response"]?.ToString() ?? "No response";
 
                 return Ok(new { Answer = answer });
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(new { Answer = "Gabim" });
+                return BadRequest(new { Answer = "Gabim", Error = ex.Message });
             }
         }
 
+        /// <summary>
+        /// Calls another AI API (OpenAI-style).
+        /// </summary>
         [HttpPost("kerko")]
         public async Task<IActionResult> Kerko([FromBody] string teksti)
         {
             try
             {
-                string apiUrl = "http://localhost:4891/v1/chat/completions";
+                string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
 
                 var requestData = new
                 {
@@ -51,9 +64,9 @@ namespace FinquixAPI.Controllers.AI
                     max_tokens = 2048,
                     messages = new[]
                     {
-                    new { role = "system", content = "You are an AI assistant." },
-                    new { role = "user", content = teksti }
-                }
+                        new { role = "system", content = "You are an AI assistant." },
+                        new { role = "user", content = teksti }
+                    }
                 };
 
                 var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
@@ -66,9 +79,9 @@ namespace FinquixAPI.Controllers.AI
 
                 return Ok(new { Answer = answer });
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(new { Answer = "Gabim" });
+                return BadRequest(new { Answer = "Gabim", Error = ex.Message });
             }
         }
     }

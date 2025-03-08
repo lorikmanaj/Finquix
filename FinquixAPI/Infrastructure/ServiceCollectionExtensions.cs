@@ -11,22 +11,22 @@ namespace FinquixAPI.Infrastructure
             services.AddDbContext<FinquixDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("FinquixDemo"));
+                    b => b.MigrationsAssembly("FinquixAPI"));
             });
 
             services.AddHttpClient();
 
             // ✅ Register OpenAI HTTP client
-            var apiKey = configuration["OpenAI:ApiKey"];
-            if (string.IsNullOrEmpty(apiKey))
-                throw new InvalidOperationException("OpenAI API Key is missing in configuration.");
+            //var apiKey = configuration["OpenAI:ApiKey"];
+            //if (string.IsNullOrEmpty(apiKey))
+            //    throw new InvalidOperationException("OpenAI API Key is missing in configuration.");
 
-            services.AddHttpClient("OpenAI", client =>
-            {
-                client.BaseAddress = new Uri("https://api.openai.com/v1/");
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-            });
+            //services.AddHttpClient("OpenAI", client =>
+            //{
+            //    client.BaseAddress = new Uri("https://api.openai.com/v1/");
+            //    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+            //    client.DefaultRequestHeaders.Add("Accept", "application/json");
+            //});
 
             services.AddHttpContextAccessor();
             services.AddHostedService<MarketDataSimulatorService>(); // This is a valid hosted service.
