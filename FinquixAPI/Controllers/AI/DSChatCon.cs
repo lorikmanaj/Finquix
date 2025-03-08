@@ -2,6 +2,9 @@
 using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using Microsoft.SemanticKernel;
+using Codeblaze.SemanticKernel.Connectors.Ollama;
+using FinquixAPI.Models.AI;
 
 namespace FinquixAPI.Controllers.AI
 {
@@ -16,37 +19,62 @@ namespace FinquixAPI.Controllers.AI
             _httpClient = httpClient;
         }
 
+        [HttpPost("Kerko1")]
+        public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti)
+        {
+            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
+            //"deepseek-r1"
+            //llama3.2 
+            kbuilder.Services.AddScoped<HttpClient>();
+            var kernel = kbuilder.Build(); 
+            Answer ans = new Answer();
+            var response = await kernel.InvokePromptAsync(Teksti);
+
+            //Step 1
+            //var dummyCryptoData
+
+            //Step 2
+            //manipulate with dummyCryptoData using input
+            if ((response.ToString()).Contains("<think>"))
+                ans.AnswerDS = (response.ToString()).Substring(17); //responsEdituar;
+            else
+                ans.AnswerDS = response.ToString();
+
+            yield return ans;
+        }
+
         /// <summary>
         /// Calls the Ollama API directly.
         /// </summary>
-        [HttpPost("kerko1")]
-        public async Task<IActionResult> Kerko1([FromBody] string teksti)
-        {
-            try
-            {
-                string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
+        //[HttpPost("kerko1")]
+        //public async Task<IActionResult> Kerko1([FromBody] string teksti)
+        //{
+        //    try
+        //    {
+        //        string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
+        //        var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");
 
-                var requestData = new
-                {
-                    model = "llama3.2",
-                    prompt = teksti
-                };
+        //        var requestData = new
+        //        {
+        //            model = "llama3.2",
+        //            prompt = teksti
+        //        };
 
-                var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
-                response.EnsureSuccessStatusCode();
+        //        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+        //        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+        //        response.EnsureSuccessStatusCode();
 
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var parsedJson = JObject.Parse(responseBody);
-                string answer = parsedJson["response"]?.ToString() ?? "No response";
+        //        var responseBody = await response.Content.ReadAsStringAsync();
+        //        var parsedJson = JObject.Parse(responseBody);
+        //        string answer = parsedJson["response"]?.ToString() ?? "No response";
 
-                return Ok(new { Answer = answer });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Answer = "Gabim", Error = ex.Message });
-            }
-        }
+        //        return Ok(new { Answer = answer });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
+        //    }
+        //}
 
         /// <summary>
         /// Calls another AI API (OpenAI-style).

@@ -1,4 +1,5 @@
 ﻿using FinquixAPI.Models;
+using FinquixAPI.Models.AI;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinquixAPI.Infrastructure.Database
@@ -11,6 +12,8 @@ namespace FinquixAPI.Infrastructure.Database
         public DbSet<FinancialSignal> FinancialSignals { get; set; }
         public DbSet<CryptoAsset> CryptoAssets { get; set; }
         public DbSet<StockAsset> StockAssets { get; set; }
+
+        public DbSet<Question> Questions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
