@@ -4,6 +4,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using Microsoft.SemanticKernel;
 using Codeblaze.SemanticKernel.Connectors.Ollama;
+using FinquixAPI.Models.AI;
 
 namespace FinquixAPI.Controllers.AI
 {
@@ -18,31 +19,40 @@ namespace FinquixAPI.Controllers.AI
             _httpClient = httpClient;
         }
 
-
         [HttpPost("Kerko1")]
         public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti)
         {
-            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");//llama3.2
+            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
+            //"deepseek-r1"
+            //llama3.2 
             kbuilder.Services.AddScoped<HttpClient>();
-            var kernel = kbuilder.Build();
+            var kernel = kbuilder.Build(); 
             Answer ans = new Answer();
-           
             var response = await kernel.InvokePromptAsync(Teksti);
-            ans.AnswerDS = (response.ToString()).Substring(17);
-           
+
+            //Step 1
+            //var dummyCryptoData
+
+            //Step 2
+            //manipulate with dummyCryptoData using input
+            if ((response.ToString()).Contains("<think>"))
+                ans.AnswerDS = (response.ToString()).Substring(17); //responsEdituar;
+            else
+                ans.AnswerDS = response.ToString();
+
             yield return ans;
         }
 
-
-        ///// <summary>
-        ///// Calls the Ollama API directly.
-        ///// </summary>
+        /// <summary>
+        /// Calls the Ollama API directly.
+        /// </summary>
         //[HttpPost("kerko1")]
         //public async Task<IActionResult> Kerko1([FromBody] string teksti)
         //{
         //    try
         //    {
         //        string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
+        //        var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");
 
         //        var requestData = new
         //        {
