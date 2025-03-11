@@ -94,41 +94,41 @@ namespace FinquixAPI.Controllers.AI
         //    }
         //}
 
-        /// <summary>
-        /// Calls another AI API (OpenAI-style).
-        /// </summary>
-        [HttpPost("kerko")]
-        public async Task<IActionResult> Kerko([FromBody] string teksti)
-        {
-            try
-            {
-                string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
+        ///// <summary>
+        ///// Calls another AI API (OpenAI-style).
+        ///// </summary>
+        //[HttpPost("kerko")]
+        //public async Task<IActionResult> Kerko([FromBody] string teksti)
+        //{
+        //    try
+        //    {
+        //        string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
 
-                var requestData = new
-                {
-                    model = "Llama 3 8B Instruct",
-                    max_tokens = 2048,
-                    messages = new[]
-                    {
-                        new { role = "system", content = "You are an AI assistant." },
-                        new { role = "user", content = teksti }
-                    }
-                };
+        //        var requestData = new
+        //        {
+        //            model = "Llama 3 8B Instruct",
+        //            max_tokens = 2048,
+        //            messages = new[]
+        //            {
+        //                new { role = "system", content = "You are an AI assistant." },
+        //                new { role = "user", content = teksti }
+        //            }
+        //        };
 
-                var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
-                response.EnsureSuccessStatusCode();
+        //        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+        //        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+        //        response.EnsureSuccessStatusCode();
 
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var parsedJson = JObject.Parse(responseBody);
-                string answer = parsedJson["choices"]?[0]?["messages"]?["content"]?.ToString() ?? "No response";
+        //        var responseBody = await response.Content.ReadAsStringAsync();
+        //        var parsedJson = JObject.Parse(responseBody);
+        //        string answer = parsedJson["choices"]?[0]?["messages"]?["content"]?.ToString() ?? "No response";
 
-                return Ok(new { Answer = answer });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Answer = "Gabim", Error = ex.Message });
-            }
-        }
+        //        return Ok(new { Answer = answer });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
+        //    }
+        //}
     }
 }
