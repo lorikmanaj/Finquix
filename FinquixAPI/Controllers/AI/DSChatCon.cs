@@ -20,8 +20,26 @@ namespace FinquixAPI.Controllers.AI
         }
 
         [HttpPost("Kerko1")]
-        public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti)
+        public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti) //Change Teksti to Input { Id, Text, Action }
         {
+            //Question Simulators 
+            //Read Goals from userData
+
+            //Step 1 : Inject MarketDataService, Inject UserDataService
+
+            //UserDataService -> var userData { Budget, Income, Goals, Expenses }
+            //MarketDataService -> var marketData { CryptoAssets { Title, Price }, FinancialSignals { Title, Price } }
+
+            //Step 2: kbuilderi -> Receives Prompt { Question: { Action = 'Increase Finance' } }
+
+            //Step 2.1: kbuilderi -> Action = Goal, apply Action over data from Step 1.
+            //Step 1 outputs var userData edhe marketData, Step 2.1 manipulates data from Step .
+
+            //Step 3: Calculate potential decisions (answer) against FinancialGoals by calculating 
+
+            //Step 4: return response/suggestion to User (do not make decisions)
+
+
             var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
             //"deepseek-r1"
             //llama3.2 

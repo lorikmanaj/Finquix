@@ -9,6 +9,7 @@
         public decimal VariableExpenses { get; set; }
         public double SavingsRate { get; set; } // Stored as a percentage (e.g., 0.15 for 15%)
         public string RiskTolerance { get; set; } // Low, Medium, High
+        //Add Balance
 
         // Navigation property
         public UserProfile UserProfile { get; set; }
