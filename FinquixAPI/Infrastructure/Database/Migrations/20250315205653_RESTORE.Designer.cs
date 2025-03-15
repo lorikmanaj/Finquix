@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinquixAPI.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FinquixDbContext))]
-    [Migration("20250315140854_RESTORE")]
+    [Migration("20250315205653_RESTORE")]
     partial class RESTORE
     {
         /// <inheritdoc />
@@ -33,8 +33,14 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
 

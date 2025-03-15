@@ -22,7 +22,7 @@
                 <td [ngClass]="{ 'positive': stock.changePercent > 0, 'negative': stock.changePercent < 0 }">
                     {{ stock.changePercent }}%
                 </td>
-                <td>${{ stock.marketCap }}</td>
+                <td>{{ stock.predictedChange }}%</td>
                 <td>{{ stock.lastUpdated | date: 'short' }}</td>
             </tr>
         </tbody>

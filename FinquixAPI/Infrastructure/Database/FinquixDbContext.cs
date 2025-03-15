@@ -31,5 +31,22 @@ namespace FinquixAPI.Infrastructure.Database
             //    new StockAsset { Id = 3, Symbol = "MSFT", Name = "Microsoft Corp.", CurrentPrice = 299.12m, ChangePercent = 0, LastUpdated = DateTime.UtcNow }
             //);
         }
+
+        //Seed Questions
+        //public static void SeedAIQuestions(FinquixDbContext context)
+        //{
+        //    if (!context.Questions.Any())
+        //    {
+        //        context.Questions.AddRange(new List<Questions>
+        //        {
+        //            new() { Category = "Crypto", Text = "Should I invest in Bitcoin now?" },
+        //            new() { Category = "Crypto", Text = "Is Ethereum a good buy right now?" },
+        //            new() { Category = "Stocks", Text = "Should I sell my Tesla stock?" },
+        //            new() { Category = "Stocks", Text = "Is Apple stock a strong hold?" }
+        //        });
+        //        context.SaveChanges();
+        //    }
+        //}
+
     }
 }

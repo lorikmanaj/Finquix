@@ -59,6 +59,9 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
                 asset.CurrentPrice += (decimal)(_random.NextDouble() * 100 - 50);
                 asset.ChangePercent = ((asset.CurrentPrice - asset.PreviousPrice) / asset.PreviousPrice) * 100;
                 asset.LastUpdated = DateTime.UtcNow;
+
+                decimal totalSupply = _random.Next(1000000, 1000000000); // Random supply (e.g., 1M to 1B coins)
+                asset.MarketCap = asset.CurrentPrice * totalSupply;
             }
 
             foreach (var signal in financialSignals)
@@ -67,12 +70,15 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
                 signal.CurrentPrice += (decimal)(_random.NextDouble() * 20 - 10);
                 signal.ChangePercent = ((signal.CurrentPrice - signal.PreviousPrice) / signal.PreviousPrice) * 100;
                 signal.SignalDate = DateTime.UtcNow;
+
                 signal.Recommendation = _random.Next(0, 3) switch
                 {
                     0 => "Buy",
                     1 => "Hold",
                     _ => "Sell"
                 };
+
+                signal.PredictedChange = signal.ChangePercent * (decimal)(_random.NextDouble() * 1.5);
             }
 
             await context.SaveChangesAsync();
