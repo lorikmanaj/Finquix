@@ -1,46 +1,52 @@
-﻿using FinquixAPI.Infrastructure.Database;
+﻿using FinquixAPI.Infrastructure.Services.MarketData;
 using FinquixAPI.Models.Financials;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinquixAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FinancialSignals(FinquixDbContext context) : ControllerBase
+    public class FinancialSignalsController(IMarketDataSimulatorService marketDataService) : ControllerBase
     {
-        private readonly FinquixDbContext _context = context;
+        private readonly IMarketDataSimulatorService _marketDataService = marketDataService;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FinancialSignal>>> GetSignals()
         {
-            return await _context.FinancialSignals.ToListAsync();
+            return Ok(await _marketDataService.GetFinancialSignalsAsync());
         }
 
         [HttpPost("generate-signal")]
         public async Task<IActionResult> GenerateMockSignal()
         {
-            var random = new Random();
-            var newSignal = new FinancialSignal
-            {
-                Ticker = "AAPL",
-                CompanyName = "Apple Inc.",
-                CurrentPrice = random.Next(100, 200),
-                ChangePercent = (decimal)(random.NextDouble() * 10 - 5), // Simulate -5% to +5%
-                SignalDate = DateTime.UtcNow,
-                Recommendation = random.Next(0, 3) switch
-                {
-                    0 => "Buy",
-                    1 => "Hold",
-                    _ => "Sell"
-                }
-            };
-
-            _context.FinancialSignals.Add(newSignal);
-            await _context.SaveChangesAsync();
-
-            return Ok(newSignal);
+            await _marketDataService.GenerateAndUpdateMarketData();
+            return Ok("Financial signals updated successfully.");
         }
+
+        //[HttpPost("generate-signal")]
+        //public async Task<IActionResult> GenerateMockSignal()
+        //{
+        //    var random = new Random();
+        //    var newSignal = new FinancialSignal
+        //    {
+        //        Ticker = "AAPL",
+        //        CompanyName = "Apple Inc.",
+        //        CurrentPrice = random.Next(100, 200),
+        //        ChangePercent = (decimal)(random.NextDouble() * 10 - 5), // Simulate -5% to +5%
+        //        SignalDate = DateTime.UtcNow,
+        //        Recommendation = random.Next(0, 3) switch
+        //        {
+        //            0 => "Buy",
+        //            1 => "Hold",
+        //            _ => "Sell"
+        //        }
+        //    };
+
+        //    _context.FinancialSignals.Add(newSignal);
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok(newSignal);
+        //}
 
         //FinancialSignalsController(HttpClient httpClient, IConfiguration configuration, ILogger<FinancialSignalsController> logger)
 

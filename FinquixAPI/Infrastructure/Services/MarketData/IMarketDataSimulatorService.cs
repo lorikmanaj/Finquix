@@ -5,6 +5,7 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
 {
     public interface IMarketDataSimulatorService
     {
+        Task GenerateAndUpdateMarketData();
         Task<List<CryptoAsset>> GetCryptoAssetsAsync();
         Task<List<FinancialSignal>> GetFinancialSignalsAsync();
     }

@@ -1,5 +1,6 @@
 ﻿using FinquixAPI.Infrastructure.Database;
 using FinquixAPI.Models.Financials;
+using FinquixAPI.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinquixAPI.Infrastructure.Services.FinancialAnalysis
@@ -36,6 +37,27 @@ namespace FinquixAPI.Infrastructure.Services.FinancialAnalysis
                     MonthlyContribution = g.MonthlyContribution
                 }).ToList()
             };
+        }
+
+        public async Task<IEnumerable<UserProfile>> GetAllUserProfilesAsync()
+        {
+            return await _context.UserProfiles.Include(u => u.FinancialGoals)
+                                              .Include(u => u.FinancialData)
+                                              .ToListAsync();
+        }
+
+        public async Task<UserProfile> GetUserProfileByIdAsync(int id)
+        {
+            return await _context.UserProfiles.Include(u => u.FinancialGoals)
+                                              .Include(u => u.FinancialData)
+                                              .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<UserProfile> CreateUserProfileAsync(UserProfile userProfile)
+        {
+            _context.UserProfiles.Add(userProfile);
+            await _context.SaveChangesAsync();
+            return userProfile;
         }
     }
 }

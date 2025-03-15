@@ -21,7 +21,7 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
             }
         }
 
-        private async Task GenerateAndUpdateMarketData()
+        public async Task GenerateAndUpdateMarketData()
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<FinquixDbContext>();
