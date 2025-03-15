@@ -11,8 +11,8 @@ import { CryptoMarketComponent } from './components/crypto-market/crypto-market.
     RouterModule,
     RouterOutlet,
     HttpClientModule,
-    FinancialSignalsComponent,
-    CryptoMarketComponent
+    // FinancialSignalsComponent,
+    // CryptoMarketComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -27,5 +27,4 @@ export class AppComponent {
   goToOnboarding() {
     this.router.navigate(['/onboarding']);
   }
-
 }

@@ -1,7 +1,10 @@
 <div class="onboarding-container">
     <h2>Financial Onboarding</h2>
     <form [formGroup]="onboardingForm" (ngSubmit)="submit()">
+
+        <!-- User Profile -->
         <mat-card>
+            <h3>Personal Information</h3>
             <mat-form-field appearance="outline">
                 <mat-label>Name</mat-label>
                 <input matInput formControlName="name" />
@@ -21,18 +24,56 @@
                 <mat-label>Dependents</mat-label>
                 <input matInput formControlName="dependents" type="number" />
             </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Investment Behavior</mat-label>
+                <mat-select formControlName="investmentBehavior">
+                    <mat-option value="Conservative">Conservative</mat-option>
+                    <mat-option value="Moderate">Moderate</mat-option>
+                    <mat-option value="Aggressive">Aggressive</mat-option>
+                </mat-select>
+            </mat-form-field>
         </mat-card>
 
+        <!-- Financial Goals -->
         <mat-card>
             <h3>Financial Goals</h3>
-            <div formGroupName="financialGoals">
-                <mat-checkbox formControlName="debtRepayment">Pay Off Debt</mat-checkbox><br />
-                <mat-checkbox formControlName="housePurchase">Buy a House</mat-checkbox><br />
-                <mat-checkbox formControlName="retirement">Retirement</mat-checkbox><br />
-                <mat-checkbox formControlName="saveForEducation">Save for Education</mat-checkbox>
+            <div formArrayName="financialGoals">
+                <div *ngFor="let goal of financialGoals.controls; let i = index" [formGroupName]="i">
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Goal Type</mat-label>
+                        <mat-select formControlName="goalType">
+                            <mat-option value="DebtRepayment">Pay Off Debt</mat-option>
+                            <mat-option value="HousePurchase">Buy a House</mat-option>
+                            <mat-option value="Retirement">Retirement</mat-option>
+                            <mat-option value="SaveForEducation">Save for Education</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Estimated Value ($)</mat-label>
+                        <input matInput formControlName="estimatedValue" type="number" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Monthly Contribution ($)</mat-label>
+                        <input matInput formControlName="monthlyContribution" type="number" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Target Date</mat-label>
+                        <input matInput formControlName="targetDate" type="date" />
+                    </mat-form-field>
+
+                    <mat-checkbox formControlName="isActive">Active Goal</mat-checkbox>
+                </div>
             </div>
+
+            <button mat-raised-button type="button" (click)="addFinancialGoal()">+ Add Goal</button>
         </mat-card>
 
+        <!-- Income & Expenses -->
         <mat-card>
             <h3>Income & Expenses</h3>
             <div formGroupName="financialData">
@@ -52,8 +93,29 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
-                    <mat-label>Savings Rate (%)</mat-label>
-                    <input matInput formControlName="savingsRate" type="number" />
+                    <mat-label>Savings</mat-label>
+                    <input matInput formControlName="savings" type="number" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Debt ($)</mat-label>
+                    <input matInput formControlName="debt" type="number" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Emergency Fund ($)</mat-label>
+                    <input matInput formControlName="emergencyFund" type="number" />
+                </mat-form-field>
+
+                <!-- Computed fields (Read-Only) -->
+                <mat-form-field appearance="outline">
+                    <mat-label>Monthly Budget ($)</mat-label>
+                    <input matInput formControlName="monthlyBudget" type="number" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Total Net Worth ($)</mat-label>
+                    <input matInput formControlName="totalNetWorth" type="number" />
                 </mat-form-field>
             </div>
 
