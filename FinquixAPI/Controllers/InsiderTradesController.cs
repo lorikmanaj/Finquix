@@ -23,9 +23,6 @@ namespace FinquixAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Fetches insider trading activities for a given stock symbol.
-        /// </summary>
         [HttpGet("{symbol}")]
         public async Task<IActionResult> GetInsiderTrades(string symbol)
         {

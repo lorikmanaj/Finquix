@@ -17,7 +17,7 @@ namespace FinquixAPI.Infrastructure
 
             services.AddHttpClient();
 
-            // ✅ Register OpenAI HTTP client
+            //Register OpenAI HTTP client
             //var apiKey = configuration["OpenAI:ApiKey"];
             //if (string.IsNullOrEmpty(apiKey))
             //    throw new InvalidOperationException("OpenAI API Key is missing in configuration.");
@@ -61,8 +61,8 @@ namespace FinquixAPI.Infrastructure
                     builder.WithOrigins(allowedOrigins)
                            .AllowAnyMethod()
                            .AllowAnyHeader()
-                           .SetIsOriginAllowed(origin => true) // ✅ Ensures local requests are not blocked
-                           .AllowCredentials(); // ✅ Only works with explicit origins, not "*"
+                           .SetIsOriginAllowed(origin => true)
+                           .AllowCredentials();
                 });
             });
 

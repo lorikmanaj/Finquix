@@ -26,28 +26,19 @@ namespace FinquixAPI
             app.Run();
         }
 
-        /// <summary>
-        /// Loads environment-specific configurations, including JSON files and environment variables.
-        /// </summary>
         private static void ConfigureAppConfiguration(WebApplicationBuilder builder)
         {
             var environment = builder.Environment.EnvironmentName;
 
-            // ✅ Load base config file
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                                  .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
-            // ✅ Load additional local config if needed
             if (environment == "Local")
                 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-            // ✅ Load environment variables
             builder.Configuration.AddEnvironmentVariables();
         }
 
-        /// <summary>
-        /// Registers all services and dependencies in the DI container.
-        /// </summary>
         private static void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
         {
             services.AddInfrastructure(configuration);
@@ -66,10 +57,6 @@ namespace FinquixAPI
                     .AddJsonOptions(options =>
                         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
         }
-
-        /// <summary>
-        /// Configures the application's middleware pipeline.
-        /// </summary>
         private static void ConfigureApp(WebApplication app)
         {
             if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
@@ -78,7 +65,7 @@ namespace FinquixAPI
                 app.UseSwaggerUI();
             }
 
-            // ✅ CORS should come before `UseRouting()`
+            //CORS should come before `UseRouting()`
             app.UseCors("AllowSpecificOrigins");
 
             app.UseHttpsRedirection();
