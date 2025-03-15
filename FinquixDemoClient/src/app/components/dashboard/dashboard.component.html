@@ -5,20 +5,37 @@
     <h3>Welcome, {{ userProfile.name }}!</h3>
     <p><strong>Age:</strong> {{ userProfile.age }}</p>
     <p><strong>Employment Status:</strong> {{ userProfile.employmentStatus }}</p>
-    <p><strong>Risk Tolerance:</strong> {{ userProfile.riskTolerance }}</p>
+    <p><strong>Risk Tolerance:</strong> {{ userProfile.financialData?.riskTolerance || 'N/A' }}</p>
 
     <h3>Financial Goals</h3>
     <ul>
         <li *ngFor="let goal of userProfile.financialGoals">
-            {{ goal.goalType }} - {{ goal.isActive ? 'Active' : 'Inactive' }}
+            <strong>{{ goal.goalType }}</strong> -
+            <span [ngStyle]="{ color: goal.isActive ? 'green' : 'red' }">
+                {{ goal.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <p>Estimated Value: ${{ goal.estimatedValue }}</p>
+            <p>Monthly Contribution: ${{ goal.monthlyContribution }}</p>
+            <p>Progress: {{ goal.progressPercentage | number: '1.2-2' }}%</p>
+            <p>Target Date: {{ goal.targetDate | date: 'MMM yyyy' }}</p>
         </li>
     </ul>
 
     <h3>Income & Expenses</h3>
-    <p><strong>Income:</strong> ${{ userProfile.financialData?.income }}</p>
-    <p><strong>Fixed Expenses:</strong> ${{ userProfile.financialData?.fixedExpenses }}</p>
-    <p><strong>Variable Expenses:</strong> ${{ userProfile.financialData?.variableExpenses }}</p>
-    <p><strong>Savings Rate:</strong> {{ userProfile.financialData?.savingsRate }}%</p>
+    <p><strong>Income:</strong> ${{ userProfile.financialData?.income || 0 }}</p>
+    <p><strong>Fixed Expenses:</strong> ${{ userProfile.financialData?.fixedExpenses || 0 }}</p>
+    <p><strong>Variable Expenses:</strong> ${{ userProfile.financialData?.variableExpenses || 0 }}</p>
+
+    <h3>Savings & Investments</h3>
+    <p><strong>Savings:</strong> ${{ userProfile.financialData?.savings || 0 }}</p>
+    <p><strong>Investments:</strong> ${{ userProfile.financialData?.investments || 0 }}</p>
+    <p><strong>Debt:</strong> ${{ userProfile.financialData?.debt || 0 }}</p>
+    <p><strong>Emergency Fund:</strong> ${{ userProfile.financialData?.emergencyFund || 0 }}</p>
+
+    <h3>Computed Values</h3>
+    <p><strong>Monthly Budget:</strong> ${{ userProfile.financialData?.monthlyBudget || 0 }}</p>
+    <p><strong>Total Net Worth:</strong> ${{ userProfile.financialData?.totalNetWorth || 0 }}</p>
+    <p><strong>Savings Rate:</strong> {{ savingsRate }}</p>
 </div>
 
 <ng-template #noData>
