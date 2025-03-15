@@ -54,7 +54,7 @@ export class OnboardingComponent implements OnInit {
         monthlyBudget: [{ value: '', disabled: true }], // Computed, read-only
         totalNetWorth: [{ value: '', disabled: true }] // Computed, read-only
       }),
-      riskTolerance: ['Medium'] // ✅ Ensure default is a string, not boolean
+      riskTolerance: ['Medium']
     });
 
     // this.onboardingForm = this.fb.group({
@@ -93,14 +93,13 @@ export class OnboardingComponent implements OnInit {
         this.userProfileService.getUserProfileById(this.userId).subscribe(
           (data) => {
             this.onboardingForm.patchValue(data);
-            this.updateComputedFields(); // ✅ Compute and update fields
+            this.updateComputedFields(); 
           },
           (error) => console.error('Failed to load user profile:', error)
         );
       }
     });
 
-    // Compute fields on change
     this.onboardingForm.get('financialData')?.valueChanges.subscribe(() => {
       this.updateComputedFields();
     });
@@ -109,7 +108,6 @@ export class OnboardingComponent implements OnInit {
   updateComputedFields() {
     const financialData = this.onboardingForm.get('financialData')?.value;
 
-    // Ensure all values are numbers, default to 0 if null/undefined/empty
     const income = Number(financialData.income) || 0;
     const fixedExpenses = Number(financialData.fixedExpenses) || 0;
     const variableExpenses = Number(financialData.variableExpenses) || 0;
@@ -153,7 +151,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   submit() {
-    const formData = this.onboardingForm.getRawValue(); // ✅ getRawValue includes disabled fields
+    const formData = this.onboardingForm.getRawValue();
     formData.financialGoals = formData.financialGoals.filter((g: { goalType: string; isActive: boolean }) => g.isActive);
 
     this.userProfileService.submitOnboarding(formData).subscribe({

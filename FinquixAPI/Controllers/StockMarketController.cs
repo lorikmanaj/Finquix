@@ -13,14 +13,15 @@ namespace FinquixAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StockAsset>>> GetStockAssets()
         {
-            return Ok(await _marketDataService.GetCryptoAssetsAsync());
+            return Ok(await _marketDataService.GetFinancialSignalsAsync());
         }
 
         [HttpPost("simulate-update")]
         public async Task<IActionResult> SimulateMarketUpdate()
         {
             await _marketDataService.GenerateAndUpdateMarketData();
-            return Ok("Stock market data updated successfully.");
+            var updatedStocks = await _marketDataService.GetFinancialSignalsAsync();
+            return Ok(updatedStocks);
         }
     }
 }

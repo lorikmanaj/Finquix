@@ -20,10 +20,8 @@ import { CryptoMarketComponent } from './components/crypto-market/crypto-market.
 export class AppComponent {
   title = 'FinquixDemoClient';
 
-  // In your component or constructor
   constructor(private router: Router) { }
 
-  // Call this method to navigate
   goToOnboarding() {
     this.router.navigate(['/onboarding']);
   }

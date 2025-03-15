@@ -1,15 +1,31 @@
 .container {
   text-align: center;
+  padding: 20px;
+}
+
+.simulate-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.simulate-btn:hover {
+  background-color: #45a049;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 15px;
 }
 
 th,
 td {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ddd;
 }
 
@@ -19,8 +35,10 @@ th {
 
 .positive {
   color: green;
+  font-weight: bold;
 }
 
 .negative {
   color: red;
+  font-weight: bold;
 }

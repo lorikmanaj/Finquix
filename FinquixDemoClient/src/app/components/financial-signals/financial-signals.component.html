@@ -1,13 +1,15 @@
 <div class="container">
     <h2>Financial Market Signals</h2>
-    <button (click)="simulateMarketUpdate()">Simulate Market Update</button>
+    <button class="simulate-btn" (click)="simulateMarketUpdate()">Simulate Market Update</button>
     <table>
         <thead>
             <tr>
                 <th>Symbol</th>
                 <th>Name</th>
-                <th>Price</th>
+                <th>Previous Price</th>
+                <th>Current Price</th>
                 <th>Change (%)</th>
+                <th>Market Cap</th>
                 <th>Last Updated</th>
             </tr>
         </thead>
@@ -15,11 +17,13 @@
             <tr *ngFor="let stock of stockAssets">
                 <td>{{ stock.symbol }}</td>
                 <td>{{ stock.name }}</td>
-                <td>${{ stock.currentPrice | number: '1.2-2' }}</td>
-                <td [ngClass]="{'positive': stock.changePercent > 0, 'negative': stock.changePercent < 0}">
-                    {{ stock.changePercent | number: '1.2-2' }}%
+                <td>${{ stock.previousPrice }}</td>
+                <td>${{ stock.currentPrice }}</td>
+                <td [ngClass]="{ 'positive': stock.changePercent > 0, 'negative': stock.changePercent < 0 }">
+                    {{ stock.changePercent }}%
                 </td>
-                <td>{{ stock.lastUpdated | date:'short' }}</td>
+                <td>${{ stock.marketCap }}</td>
+                <td>{{ stock.lastUpdated | date: 'short' }}</td>
             </tr>
         </tbody>
     </table>

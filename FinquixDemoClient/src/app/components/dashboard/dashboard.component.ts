@@ -9,7 +9,7 @@ import { CommonModule, DecimalPipe, DatePipe, NgFor, NgIf, NgStyle } from '@angu
   imports: [CommonModule, NgIf, NgFor, NgStyle, DecimalPipe, DatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
-  providers: [DecimalPipe, DatePipe] // ✅ Ensure pipes are available
+  providers: [DecimalPipe, DatePipe]
 })
 export class DashboardComponent implements OnInit {
   userProfile: any = null;
@@ -29,7 +29,6 @@ export class DashboardComponent implements OnInit {
             }
           };
 
-          // ✅ Compute savings rate
           const income = this.userProfile.financialData?.income || 0;
           const savings = this.userProfile.financialData?.savings || 0;
           this.savingsRate = income > 0 ? ((savings / income) * 100).toFixed(2) + '%' : '0%';
