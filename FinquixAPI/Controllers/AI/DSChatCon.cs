@@ -28,7 +28,7 @@ namespace FinquixAPI.Controllers.AI
         }
 
         [HttpPost("ask")]
-        public async IAsyncEnumerable<Answer> Ask([FromBody] Question input)
+        public async Task<IActionResult> Ask([FromBody] Question input)
         {
             var kbuilder = Kernel.CreateBuilder()
                 .AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
@@ -36,32 +36,77 @@ namespace FinquixAPI.Controllers.AI
             kbuilder.Services.AddScoped<HttpClient>();
             var kernel = kbuilder.Build();
 
-            //Fetch user financial data
             var userData = await _financialService.AnalyzeUserFinances(input.UserId);
-            var marketData = await _marketService.GetFinancialSignalsAsync();
+            var stockMarketData = await _marketService.GetFinancialSignalsAsync();
+            var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
 
-            // Construct AI prompt
             var aiPrompt = $@"
                 User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
                 Their current financial goals:
                 {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
 
-                Market signals:
-                {string.Join("\n", marketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
+                📊 **Market Overview:**
+                🔹 **Stock Market Signals:**
+                {string.Join("\n", stockMarketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
 
-                Question: {input.Text}
+                🔹 **Crypto Market Signals:**
+                {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
+
+                💬 **User Question:** {input.Text}
             ";
 
             var response = await kernel.InvokePromptAsync(aiPrompt);
-            Answer ans = new();
+            var responseText = response.ToString();
 
-            if ((response.ToString()).Contains("<think>"))
-                ans.AnswerDS = (response.ToString()).Substring(17);
-            else
-                ans.AnswerDS = response.ToString();
+            var ans = new Answer
+            {
+                AnswerDS = responseText.Contains("<think>") ? responseText.Substring(17) : responseText
+            };
 
-            yield return ans;
+            return Ok(ans);
         }
+
+        //[HttpPost("ask")]
+        //public async IAsyncEnumerable<Answer> Ask([FromBody] Question input)
+        //{
+        //    var kbuilder = Kernel.CreateBuilder()
+        //        .AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
+
+        //    kbuilder.Services.AddScoped<HttpClient>();
+        //    var kernel = kbuilder.Build();
+
+        //    //Fetch user financial data
+        //    var userData = await _financialService.AnalyzeUserFinances(input.UserId);
+
+        //    var stockMarketData = await _marketService.GetFinancialSignalsAsync();
+        //    var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
+
+        //    // Construct AI prompt
+        //    var aiPrompt = $@"
+        //        User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+        //        Their current financial goals:
+        //        {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
+
+        //        📊 **Market Overview:**
+        //        🔹 **Stock Market Signals:**
+        //        {string.Join("\n", stockMarketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
+
+        //        🔹 **Crypto Market Signals:**
+        //        {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
+
+        //        💬 **User Question:** {input.Text}
+        //    ";
+
+        //    var response = await kernel.InvokePromptAsync(aiPrompt);
+        //    Answer ans = new();
+
+        //    if ((response.ToString()).Contains("<think>"))
+        //        ans.AnswerDS = (response.ToString()).Substring(17);
+        //    else
+        //        ans.AnswerDS = response.ToString();
+
+        //    yield return ans;
+        //}
 
         // 6️⃣ AI Analysis Endpoint
         //[HttpPost("analyze")]

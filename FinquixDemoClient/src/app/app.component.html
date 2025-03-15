@@ -1,14 +1,12 @@
-<!-- <app-financial-signals></app-financial-signals>
-
-<app-crypto-market></app-crypto-market> -->
-
-<!-- src/app/app.component.html -->
-
 <nav>
-    <button routerLink="/dashboard">Dashboard</button>
-    <button routerLink="/onboarding">Onboarding</button>
-    <button routerLink="/crypto-market">Crypto</button>
-    <button routerLink="/financial-signals">Financial Signals</button>
+    <button routerLink="/dashboard" routerLinkActive="active">Dashboard</button>
+    <button routerLink="/onboarding" routerLinkActive="active">Onboarding</button>
+    <button routerLink="/crypto-market" routerLinkActive="active">Crypto</button>
+    <button routerLink="/financial-signals" routerLinkActive="active">Financial Signals</button>
 </nav>
 
+<!-- Persistent Floating Chat -->
+<app-chat></app-chat>
+
+<!-- Dynamic Page Content -->
 <router-outlet></router-outlet>

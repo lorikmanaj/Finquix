@@ -3,6 +3,7 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FinancialSignalsComponent } from './components/financial-signals/financial-signals.component';
 import { HttpClientModule } from '@angular/common/http';
 import { CryptoMarketComponent } from './components/crypto-market/crypto-market.component';
+import { ChatComponent } from './components/chat/chat.component';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import { CryptoMarketComponent } from './components/crypto-market/crypto-market.
     RouterModule,
     RouterOutlet,
     HttpClientModule,
+    ChatComponent
     // FinancialSignalsComponent,
     // CryptoMarketComponent
   ],

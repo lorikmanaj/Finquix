@@ -22,12 +22,12 @@ export class FinancialSignalsComponent implements OnInit {
     this.stockMarketService.getStockAssets().subscribe({
       next: (data) => {
         this.stockAssets = [...data.map(stock => ({
-          symbol: stock.ticker, // ✅ Correct property mapping
+          symbol: stock.ticker,
           name: stock.companyName,
           previousPrice: parseFloat(stock.previousPrice).toFixed(2),
           currentPrice: parseFloat(stock.currentPrice).toFixed(2),
           changePercent: parseFloat(stock.changePercent).toFixed(2),
-          predictedChange: parseFloat(stock.predictedChange ?? 0).toFixed(2), // ✅ Replacing marketCap
+          predictedChange: parseFloat(stock.predictedChange ?? 0).toFixed(2),
           lastUpdated: stock.signalDate
         }))];
       },
