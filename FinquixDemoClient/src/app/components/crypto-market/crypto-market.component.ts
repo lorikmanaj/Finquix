@@ -22,25 +22,31 @@ export class CryptoMarketComponent implements OnInit {
   constructor(private cryptoMarketService: CryptoMarketService) { }
 
   ngOnInit(): void {
-    // ✅ Subscribe to live updates every 30 seconds
-    this.cryptoMarketService.getLiveCryptoUpdates().subscribe(
-      (data) => {
-        this.cryptoAssets = data;
-      },
-      (error) => {
-        console.error('Failed to fetch crypto data', error);
-      }
-    );
+    this.loadCryptoMarket();
   }
 
-  // ✅ Manual simulation trigger
-  simulateMarket(): void {
-    this.cryptoMarketService.simulateMarketUpdate().subscribe(
-      (updatedData) => {
-        this.cryptoAssets = updatedData;
-        console.log('Market update simulated successfully!');
+  loadCryptoMarket(): void {
+    this.cryptoMarketService.getLiveCryptoUpdates().subscribe({
+      next: (data) => {
+        this.cryptoAssets = data.map(asset => ({
+          ...asset,
+          previousPrice: asset.previousPrice.toFixed(2),
+          currentPrice: asset.currentPrice.toFixed(2),
+          marketCap: asset.marketCap.toFixed(0),
+          changePercent: asset.changePercent.toFixed(2),
+        }));
       },
-      (error) => console.error('Failed to simulate market update', error)
-    );
+      error: (error) => console.error('Failed to fetch crypto data', error)
+    });
+  }
+
+  simulateMarket(): void {
+    this.cryptoMarketService.simulateMarketUpdate().subscribe({
+      next: (response) => {
+        console.log('Market update simulated:', response);
+        this.loadCryptoMarket();
+      },
+      error: (error) => console.error('Failed to simulate market update', error)
+    });
   }
 }

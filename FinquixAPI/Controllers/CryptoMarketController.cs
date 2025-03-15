@@ -20,7 +20,7 @@ namespace FinquixAPI.Controllers
         public async Task<IActionResult> SimulateMarketUpdate()
         {
             await _marketDataService.GenerateAndUpdateMarketData();
-            return Ok("Crypto market data updated successfully.");
+            return Ok(new { message = "Crypto market data updated successfully." });
         }
     }
 }
