@@ -1,5 +1,6 @@
 ﻿using FinquixAPI.Infrastructure.Database;
-using FinquixAPI.Infrastructure.Services;
+using FinquixAPI.Infrastructure.Services.FinancialAnalysis;
+using FinquixAPI.Infrastructure.Services.MarketData;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinquixAPI.Infrastructure
@@ -29,7 +30,9 @@ namespace FinquixAPI.Infrastructure
             //});
 
             services.AddHttpContextAccessor();
-            services.AddHostedService<MarketDataSimulatorService>(); // This is a valid hosted service.
+            //services.AddHostedService<MarketDataSimulatorService>(); // This is a valid hosted service.
+            services.AddScoped<IMarketDataSimulatorService, MarketDataSimulatorService>();
+            services.AddScoped<IFinancialAnalysisService, FinancialAnalysisService>();
 
             return services;
         }

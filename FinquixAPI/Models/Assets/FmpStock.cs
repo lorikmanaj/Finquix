@@ -1,4 +1,4 @@
-﻿namespace FinquixAPI.Models
+﻿namespace FinquixAPI.Models.Assets
 {
     public class FmpStock
     {

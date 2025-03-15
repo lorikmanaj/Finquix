@@ -1,5 +1,5 @@
 ﻿using FinquixAPI.Infrastructure.Database;
-using FinquixAPI.Models;
+using FinquixAPI.Models.Financials;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

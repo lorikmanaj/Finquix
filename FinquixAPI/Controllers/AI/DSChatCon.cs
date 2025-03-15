@@ -1,65 +1,105 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Text;
-using Newtonsoft.Json.Linq;
 using Microsoft.SemanticKernel;
 using Codeblaze.SemanticKernel.Connectors.Ollama;
-using FinquixAPI.Models.AI;
+using FinquixAPI.Infrastructure.Services.FinancialAnalysis;
+using Newtonsoft.Json.Linq;
+using System.Text;
+using System.Text.Json;
+using FinquixAPI.Infrastructure.Services.MarketData;
+using FinquixAPI.Models.User;
 
 namespace FinquixAPI.Controllers.AI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DSChatCon : ControllerBase
+    public class DSChatCon(IFinancialAnalysisService financialService, 
+        IMarketDataSimulatorService marketService, 
+        HttpClient httpClient) : ControllerBase
     {
-        private readonly HttpClient _httpClient;
-
-        public DSChatCon(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
+        private readonly IFinancialAnalysisService _financialService = financialService;
+        private readonly IMarketDataSimulatorService _marketService = marketService;
+        private readonly HttpClient _httpClient = httpClient;
 
         [HttpPost("Kerko1")]
-        public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti) //Change Teksti to Input { Id, Text, Action }
+        public async Task<IActionResult> Kerko1([FromBody] UserQuery input)
         {
-            //Question Simulators 
-            //Read Goals from userData
+            var userData = await _financialService.AnalyzeUserFinances(input.UserId);
+            var marketData = await _marketService.GetFinancialSignalsAsync();
 
-            //Step 1 : Inject MarketDataService, Inject UserDataService
+            // Construct AI prompt
+            var aiPrompt = $@"
+                User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+                Their current financial goals:
+                {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
 
-            //UserDataService -> var userData { Budget, Income, Goals, Expenses }
-            //MarketDataService -> var marketData { CryptoAssets { Title, Price }, FinancialSignals { Title, Price } }
+                Market signals:
+                {string.Join("\n", marketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
 
-            //Step 2: kbuilderi -> Receives Prompt { Question: { Action = 'Increase Finance' } }
+                {input.Text}
+                ";
 
-            //Step 2.1: kbuilderi -> Action = Goal, apply Action over data from Step 1.
-            //Step 1 outputs var userData edhe marketData, Step 2.1 manipulates data from Step .
-
-            //Step 3: Calculate potential decisions (answer) against FinancialGoals by calculating 
-
-            //Step 4: return response/suggestion to User (do not make decisions)
-
-
-            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
-            //"deepseek-r1"
-            //llama3.2 
-            kbuilder.Services.AddScoped<HttpClient>();
-            var kernel = kbuilder.Build(); 
-            Answer ans = new Answer();
-            var response = await kernel.InvokePromptAsync(Teksti);
-
-            //Step 1
-            //var dummyCryptoData
-
-            //Step 2
-            //manipulate with dummyCryptoData using input
-            if ((response.ToString()).Contains("<think>"))
-                ans.AnswerDS = (response.ToString()).Substring(17); //responsEdituar;
-            else
-                ans.AnswerDS = response.ToString();
-
-            yield return ans;
+            var ollamaResponse = await SendToOllama(aiPrompt);
+            return Ok(new { Answer = ollamaResponse });
         }
+
+        private async Task<string> SendToOllama(string prompt)
+        {
+            var requestData = new
+            {
+                model = "llama3.2",
+                prompt = prompt
+            };
+
+            var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("http://localhost:11434/api/generate", jsonRequest);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var parsedJson = JObject.Parse(responseBody);
+            return parsedJson["response"]?.ToString() ?? "No response";
+        }
+    }
+
+        //Original
+        //[HttpPost("Kerko1")]
+        //public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti) //Change Teksti to Input { Id, Text, Action }
+        //{
+        //    //Question Simulators 
+        //    //Read Goals from userData
+
+        //    //Step 1 : Inject MarketDataService, Inject UserDataService
+
+        //    //UserDataService -> var userData { Budget, Income, Goals, Expenses }
+        //    //MarketDataService -> var marketData { CryptoAssets { Title, Price }, FinancialSignals { Title, Price } }
+
+        //    //Step 2: kbuilderi -> Receives Prompt { Question: { Action = 'Increase Finance' } }
+
+        //    //Step 2.1: kbuilderi -> Action = Goal, apply Action over data from Step 1.
+        //    //Step 1 outputs var userData edhe marketData, Step 2.1 manipulates data from Step .
+
+        //    //Step 3: Calculate potential decisions (answer) against FinancialGoals by calculating 
+
+        //    //Step 4: return response/suggestion to User (do not make decisions)
+
+
+        //    var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
+        //    //"deepseek-r1"
+        //    //llama3.2 
+        //    kbuilder.Services.AddScoped<HttpClient>();
+        //    var kernel = kbuilder.Build(); 
+        //    Answer ans = new Answer();
+        //    var response = await kernel.InvokePromptAsync(Teksti);
+
+        //    //var dummyCryptoData and otherfinancial data
+
+        //    //manipulate with dummyCryptoData and otherfinancial data using input
+        //    if ((response.ToString()).Contains("<think>"))
+        //        ans.AnswerDS = (response.ToString()).Substring(17); //responsEdituar;
+        //    else
+        //        ans.AnswerDS = response.ToString();
+
+        //    yield return ans;
+        //}
 
         /// <summary>
         /// Calls the Ollama API directly.
@@ -130,5 +170,4 @@ namespace FinquixAPI.Controllers.AI
         //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
         //    }
         //}
-    }
 }

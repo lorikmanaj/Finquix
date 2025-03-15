@@ -1,20 +1,23 @@
 ﻿using FinquixAPI.Infrastructure.Database;
-using FinquixAPI.Models;
+using FinquixAPI.Models.Assets;
+using FinquixAPI.Models.Financials;
 using Microsoft.EntityFrameworkCore;
 
-namespace FinquixAPI.Infrastructure.Services
+namespace FinquixAPI.Infrastructure.Services.MarketData
 {
-    public class MarketDataSimulatorService(IServiceProvider serviceProvider) : BackgroundService
+    public class MarketDataSimulatorService(IServiceProvider serviceProvider, FinquixDbContext context)
+        : BackgroundService, IMarketDataSimulatorService
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         private readonly Random _random = new();
+        private readonly FinquixDbContext _context = context;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 await GenerateAndUpdateMarketData();
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Simulate every 30s
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
         }
 
@@ -23,48 +26,46 @@ namespace FinquixAPI.Infrastructure.Services
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<FinquixDbContext>();
 
-            // ✅ Generate fake assets if they don't exist
             if (!await context.CryptoAssets.AnyAsync())
             {
                 var fakeAssets = new List<CryptoAsset>
-            {
-                new CryptoAsset { Symbol = "BTC", Name = "Bitcoin", CurrentPrice = 30000 },
-                new CryptoAsset { Symbol = "ETH", Name = "Ethereum", CurrentPrice = 2000 },
-                new CryptoAsset { Symbol = "DOGE", Name = "Dogecoin", CurrentPrice = 0.25M }
-            };
-
+                {
+                    new() { Symbol = "BTC", Name = "Bitcoin", CurrentPrice = 30000 },
+                    new() { Symbol = "ETH", Name = "Ethereum", CurrentPrice = 2000 },
+                    new() { Symbol = "DOGE", Name = "Dogecoin", CurrentPrice = 0.25M }
+                };
                 context.CryptoAssets.AddRange(fakeAssets);
             }
 
             if (!await context.FinancialSignals.AnyAsync())
             {
                 var fakeStocks = new List<FinancialSignal>
-            {
-                new FinancialSignal { Ticker = "AAPL", CompanyName = "Apple Inc.", CurrentPrice = 150 },
-                new FinancialSignal { Ticker = "GOOGL", CompanyName = "Alphabet Inc.", CurrentPrice = 2800 },
-                new FinancialSignal { Ticker = "TSLA", CompanyName = "Tesla Inc.", CurrentPrice = 700 }
-            };
-
+                {
+                    new() { Ticker = "AAPL", CompanyName = "Apple Inc.", CurrentPrice = 150 },
+                    new() { Ticker = "GOOGL", CompanyName = "Alphabet Inc.", CurrentPrice = 2800 },
+                    new() { Ticker = "TSLA", CompanyName = "Tesla Inc.", CurrentPrice = 700 }
+                };
                 context.FinancialSignals.AddRange(fakeStocks);
             }
 
             await context.SaveChangesAsync();
 
-            // ✅ Simulate market data updates
             var cryptoAssets = await context.CryptoAssets.ToListAsync();
             var financialSignals = await context.FinancialSignals.ToListAsync();
 
             foreach (var asset in cryptoAssets)
             {
+                asset.PreviousPrice = asset.CurrentPrice;
                 asset.CurrentPrice += (decimal)(_random.NextDouble() * 100 - 50);
-                asset.ChangePercent = (decimal)(_random.NextDouble() * 10 - 5);
+                asset.ChangePercent = ((asset.CurrentPrice - asset.PreviousPrice) / asset.PreviousPrice) * 100;
                 asset.LastUpdated = DateTime.UtcNow;
             }
 
             foreach (var signal in financialSignals)
             {
+                signal.PreviousPrice = signal.CurrentPrice;
                 signal.CurrentPrice += (decimal)(_random.NextDouble() * 20 - 10);
-                signal.ChangePercent = (decimal)(_random.NextDouble() * 5 - 2.5);
+                signal.ChangePercent = ((signal.CurrentPrice - signal.PreviousPrice) / signal.PreviousPrice) * 100;
                 signal.SignalDate = DateTime.UtcNow;
                 signal.Recommendation = _random.Next(0, 3) switch
                 {
@@ -76,5 +77,11 @@ namespace FinquixAPI.Infrastructure.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task<List<CryptoAsset>> GetCryptoAssetsAsync()
+            => await _context.CryptoAssets.ToListAsync();
+
+        public async Task<List<FinancialSignal>> GetFinancialSignalsAsync()
+            => await _context.FinancialSignals.ToListAsync();
     }
 }

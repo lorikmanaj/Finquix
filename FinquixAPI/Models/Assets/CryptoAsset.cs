@@ -1,10 +1,11 @@
-﻿namespace FinquixAPI.Models
+﻿namespace FinquixAPI.Models.Assets
 {
     public class CryptoAsset
     {
         public int Id { get; set; }
         public string Symbol { get; set; } // BTC, ETH
         public string Name { get; set; }
+        public decimal PreviousPrice { get; set; }
         public decimal CurrentPrice { get; set; }
         public decimal MarketCap { get; set; }
         public decimal ChangePercent { get; set; }
