@@ -7,8 +7,10 @@
             <tr>
                 <th>Symbol</th>
                 <th>Name</th>
+                <th>Previous Price</th>
                 <th>Current Price</th>
                 <th>Change (%)</th>
+                <th>Market Cap</th>
                 <th>Last Updated</th>
             </tr>
         </thead>
@@ -16,10 +18,12 @@
             <tr *ngFor="let asset of cryptoAssets">
                 <td>{{ asset.symbol }}</td>
                 <td>{{ asset.name }}</td>
+                <td>${{ asset.previousPrice | number: '1.2-2' }}</td>
                 <td>${{ asset.currentPrice | number: '1.2-2' }}</td>
                 <td [ngClass]="{ 'positive': asset.changePercent > 0, 'negative': asset.changePercent < 0 }">
                     {{ asset.changePercent | number: '1.2-2' }}%
                 </td>
+                <td>${{ asset.marketCap | number: '1.0-0' }}</td>
                 <td>{{ asset.lastUpdated | date: 'short' }}</td>
             </tr>
         </tbody>

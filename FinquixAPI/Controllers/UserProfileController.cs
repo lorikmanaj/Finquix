@@ -1,58 +1,41 @@
-﻿using FinquixAPI.Infrastructure.Database;
-using FinquixAPI.Models;
+﻿using FinquixAPI.Infrastructure.Services.FinancialAnalysis;
+using FinquixAPI.Models.User;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinquixAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserProfileController(FinquixDbContext context) : ControllerBase
+    public class UserProfileController(IFinancialAnalysisService financialAnalysisService) : ControllerBase
     {
-        private readonly FinquixDbContext _context = context;
+        private readonly IFinancialAnalysisService _financialAnalysisService = financialAnalysisService;
 
-        // GET: api/userprofiles
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserProfile>>> GetUserProfiles()
         {
-            return await _context.UserProfiles.Include(u => u.FinancialGoals)
-                                              .Include(u => u.FinancialData)
-                                              .ToListAsync();
+            return Ok(await _financialAnalysisService.GetAllUserProfilesAsync());
         }
 
-        // GET: api/userprofiles/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserProfile>> GetUserProfile(int id)
         {
-            var userProfile = await _context.UserProfiles.Include(u => u.FinancialGoals)
-                                                         .Include(u => u.FinancialData)
-                                                         .FirstOrDefaultAsync(u => u.Id == id);
-
+            var userProfile = await _financialAnalysisService.GetUserProfileByIdAsync(id);
             if (userProfile == null) return NotFound();
-            return userProfile;
+            return Ok(userProfile);
         }
 
-        // POST: api/userprofiles
         [HttpPost]
         public async Task<ActionResult<UserProfile>> PostUserProfile(UserProfile userProfile)
         {
-            _context.UserProfiles.Add(userProfile);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUserProfile), new { id = userProfile.Id }, userProfile);
+            var createdProfile = await _financialAnalysisService.CreateUserProfileAsync(userProfile);
+            return CreatedAtAction(nameof(GetUserProfile), new { id = createdProfile.Id }, createdProfile);
         }
 
         [HttpPost("submit-onboarding")]
         public async Task<IActionResult> SubmitOnboarding([FromBody] UserProfile userProfile)
         {
-            if (userProfile == null)
-            {
-                return BadRequest("Invalid onboarding data.");
-            }
-
-            _context.UserProfiles.Add(userProfile);
-            await _context.SaveChangesAsync();
-
-            return Ok(userProfile);
+            var createdProfile = await _financialAnalysisService.CreateUserProfileAsync(userProfile);
+            return Ok(createdProfile);
         }
     }
 }

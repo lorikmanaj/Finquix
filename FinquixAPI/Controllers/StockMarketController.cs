@@ -1,37 +1,27 @@
-﻿using FinquixAPI.Infrastructure.Database;
-using FinquixAPI.Models;
+﻿using FinquixAPI.Infrastructure.Services.MarketData;
+using FinquixAPI.Models.Assets;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinquixAPI.Controllers
 {
-    [Route("api/[controller]")] 
+    [Route("api/[controller]")]
     [ApiController]
-    public class StockMarketController(FinquixDbContext context) : ControllerBase
+    public class StockMarketController(IMarketDataSimulatorService marketDataService) : ControllerBase
     {
-        private readonly FinquixDbContext _context = context;
+        private readonly IMarketDataSimulatorService _marketDataService = marketDataService;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StockAsset>>> GetStockAssets()
         {
-            return await _context.StockAssets.ToListAsync();
+            return Ok(await _marketDataService.GetFinancialSignalsAsync());
         }
 
         [HttpPost("simulate-update")]
         public async Task<IActionResult> SimulateMarketUpdate()
         {
-            var stocks = await _context.StockAssets.ToListAsync();
-            var random = new Random();
-
-            foreach (var stock in stocks)
-            {
-                stock.CurrentPrice += (decimal)(random.NextDouble() * 10 - 5); // -5 to +5
-                stock.ChangePercent = (decimal)(random.NextDouble() * 5 - 2.5); // -2.5% to +2.5%
-                stock.LastUpdated = DateTime.UtcNow;
-            }
-
-            await _context.SaveChangesAsync();
-            return Ok(stocks);
+            await _marketDataService.GenerateAndUpdateMarketData();
+            var updatedStocks = await _marketDataService.GetFinancialSignalsAsync();
+            return Ok(updatedStocks);
         }
     }
 }

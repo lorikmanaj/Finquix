@@ -1,116 +1,261 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using Microsoft.SemanticKernel;
-using Codeblaze.SemanticKernel.Connectors.Ollama;
+﻿using Codeblaze.SemanticKernel.Connectors.Ollama;
+using FinquixAPI.Infrastructure.Database;
+using FinquixAPI.Infrastructure.Services.FinancialAnalysis;
+using FinquixAPI.Infrastructure.Services.MarketData;
 using FinquixAPI.Models.AI;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.SemanticKernel;
 
 namespace FinquixAPI.Controllers.AI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DSChatCon : ControllerBase
+    public class DSChatCon(FinquixDbContext context,
+        IFinancialAnalysisService financialService,
+        IMarketDataSimulatorService marketService,
+        HttpClient httpClient) : ControllerBase
     {
-        private readonly HttpClient _httpClient;
+        private readonly FinquixDbContext _context = context;
+        private readonly IFinancialAnalysisService _financialService = financialService;
+        private readonly IMarketDataSimulatorService _marketService = marketService;
+        private readonly HttpClient _httpClient = httpClient;
 
-        public DSChatCon(HttpClient httpClient)
+        [HttpGet("questions")]
+        public async Task<ActionResult<IEnumerable<Question>>> GetQuestions()
         {
-            _httpClient = httpClient;
+            return Ok(await _context.Questions.ToListAsync());
         }
 
-        [HttpPost("Kerko1")]
-        public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti)
+        [HttpPost("ask")]
+        public async Task<IActionResult> Ask([FromBody] Question input)
         {
-            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
-            //"deepseek-r1"
-            //llama3.2 
+            var kbuilder = Kernel.CreateBuilder()
+                .AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
+
             kbuilder.Services.AddScoped<HttpClient>();
-            var kernel = kbuilder.Build(); 
-            Answer ans = new Answer();
-            var response = await kernel.InvokePromptAsync(Teksti);
+            var kernel = kbuilder.Build();
 
-            //Step 1
-            //var dummyCryptoData
+            var userData = await _financialService.AnalyzeUserFinances(input.UserId);
+            var stockMarketData = await _marketService.GetFinancialSignalsAsync();
+            var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
 
-            //Step 2
-            //manipulate with dummyCryptoData using input
-            if ((response.ToString()).Contains("<think>"))
-                ans.AnswerDS = (response.ToString()).Substring(17); //responsEdituar;
-            else
-                ans.AnswerDS = response.ToString();
+            var aiPrompt = $@"
+                User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+                Their current financial goals:
+                {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
 
-            yield return ans;
+                📊 **Market Overview:**
+                🔹 **Stock Market Signals:**
+                {string.Join("\n", stockMarketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
+
+                🔹 **Crypto Market Signals:**
+                {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
+
+                💬 **User Question:** {input.Text}
+            ";
+
+            var response = await kernel.InvokePromptAsync(aiPrompt);
+            var responseText = response.ToString();
+
+            var ans = new Answer
+            {
+                AnswerDS = responseText.Contains("<think>") ? responseText.Substring(17) : responseText
+            };
+
+            return Ok(ans);
         }
 
-        /// <summary>
-        /// Calls the Ollama API directly.
-        /// </summary>
-        //[HttpPost("kerko1")]
-        //public async Task<IActionResult> Kerko1([FromBody] string teksti)
+        //[HttpPost("ask")]
+        //public async IAsyncEnumerable<Answer> Ask([FromBody] Question input)
         //{
-        //    try
-        //    {
-        //        string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
-        //        var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");
+        //    var kbuilder = Kernel.CreateBuilder()
+        //        .AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
 
-        //        var requestData = new
-        //        {
-        //            model = "llama3.2",
-        //            prompt = teksti
-        //        };
+        //    kbuilder.Services.AddScoped<HttpClient>();
+        //    var kernel = kbuilder.Build();
 
-        //        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-        //        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
-        //        response.EnsureSuccessStatusCode();
+        //    //Fetch user financial data
+        //    var userData = await _financialService.AnalyzeUserFinances(input.UserId);
 
-        //        var responseBody = await response.Content.ReadAsStringAsync();
-        //        var parsedJson = JObject.Parse(responseBody);
-        //        string answer = parsedJson["response"]?.ToString() ?? "No response";
+        //    var stockMarketData = await _marketService.GetFinancialSignalsAsync();
+        //    var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
 
-        //        return Ok(new { Answer = answer });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
-        //    }
+        //    // Construct AI prompt
+        //    var aiPrompt = $@"
+        //        User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+        //        Their current financial goals:
+        //        {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
+
+        //        📊 **Market Overview:**
+        //        🔹 **Stock Market Signals:**
+        //        {string.Join("\n", stockMarketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
+
+        //        🔹 **Crypto Market Signals:**
+        //        {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
+
+        //        💬 **User Question:** {input.Text}
+        //    ";
+
+        //    var response = await kernel.InvokePromptAsync(aiPrompt);
+        //    Answer ans = new();
+
+        //    if ((response.ToString()).Contains("<think>"))
+        //        ans.AnswerDS = (response.ToString()).Substring(17);
+        //    else
+        //        ans.AnswerDS = response.ToString();
+
+        //    yield return ans;
         //}
 
-        ///// <summary>
-        ///// Calls another AI API (OpenAI-style).
-        ///// </summary>
-        //[HttpPost("kerko")]
-        //public async Task<IActionResult> Kerko([FromBody] string teksti)
+        // 6️⃣ AI Analysis Endpoint
+        //[HttpPost("analyze")]
+        //public async Task<IActionResult> Analyze([FromBody] UserQuery input)
         //{
-        //    try
+        //    var userData = await _financialService.AnalyzeUserFinances(input.UserId);
+        //    var marketData = await _marketService.GetFinancialSignalsAsync();
+
+        //    var aiPrompt = $@"
+        //        User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+        //        Their current financial goals:
+        //        {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
+
+        //        Market signals:
+        //        {string.Join("\n", marketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
+
+        //        {input.Text}
+        //    ";
+
+        //    var ollamaResponse = await SendToOllama(aiPrompt);
+        //    return Ok(new { Answer = ollamaResponse });
+        //}
+
+        //private async Task<string> SendToOllama(string prompt)
+        //{
+        //    var requestData = new
         //    {
-        //        string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
+        //        model = "llama3.2",
+        //        prompt = prompt
+        //    };
 
-        //        var requestData = new
-        //        {
-        //            model = "Llama 3 8B Instruct",
-        //            max_tokens = 2048,
-        //            messages = new[]
-        //            {
-        //                new { role = "system", content = "You are an AI assistant." },
-        //                new { role = "user", content = teksti }
-        //            }
-        //        };
+        //    var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+        //    var response = await _httpClient.PostAsync("http://localhost:11434/api/generate", jsonRequest);
+        //    response.EnsureSuccessStatusCode();
 
-        //        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-        //        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
-        //        response.EnsureSuccessStatusCode();
-
-        //        var responseBody = await response.Content.ReadAsStringAsync();
-        //        var parsedJson = JObject.Parse(responseBody);
-        //        string answer = parsedJson["choices"]?[0]?["messages"]?["content"]?.ToString() ?? "No response";
-
-        //        return Ok(new { Answer = answer });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
-        //    }
+        //    var responseBody = await response.Content.ReadAsStringAsync();
+        //    var parsedJson = JObject.Parse(responseBody);
+        //    return parsedJson["response"]?.ToString() ?? "No response";
         //}
     }
 }
+//Original
+//[HttpPost("Kerko1")]
+//public async IAsyncEnumerable<Answer> Kerko1([FromBody] string Teksti) //Change Teksti to Input { Id, Text, Action }
+//{
+//    //Question Simulators 
+//    //Read Goals from userData
+
+//    //Step 1 : Inject MarketDataService, Inject UserDataService
+
+//    //UserDataService -> var userData { Budget, Income, Goals, Expenses }
+//    //MarketDataService -> var marketData { CryptoAssets { Title, Price }, FinancialSignals { Title, Price } }
+
+//    //Step 2: kbuilderi -> Receives Prompt { Question: { Action = 'Increase Finance' } }
+
+//    //Step 2.1: kbuilderi -> Action = Goal, apply Action over data from Step 1.
+//    //Step 1 outputs var userData edhe marketData, Step 2.1 manipulates data from Step .
+
+//    //Step 3: Calculate potential decisions (answer) against FinancialGoals by calculating 
+
+//    //Step 4: return response/suggestion to User (do not make decisions)
+
+
+//    var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
+//    //"deepseek-r1"
+//    //llama3.2 
+//    kbuilder.Services.AddScoped<HttpClient>();
+//    var kernel = kbuilder.Build(); 
+//    Answer ans = new Answer();
+//    var response = await kernel.InvokePromptAsync(Teksti);
+
+//    //var dummyCryptoData and otherfinancial data
+
+//    //manipulate with dummyCryptoData and otherfinancial data using input
+//    if ((response.ToString()).Contains("<think>"))
+//        ans.AnswerDS = (response.ToString()).Substring(17); //responsEdituar;
+//    else
+//        ans.AnswerDS = response.ToString();
+
+//    yield return ans;
+//}
+
+/// <summary>
+/// Calls the Ollama API directly.
+/// </summary>
+//[HttpPost("kerko1")]
+//public async Task<IActionResult> Kerko1([FromBody] string teksti)
+//{
+//    try
+//    {
+//        string apiUrl = "http://localhost:11434/api/generate"; // Ollama API
+//        var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");
+
+//        var requestData = new
+//        {
+//            model = "llama3.2",
+//            prompt = teksti
+//        };
+
+//        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+//        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+//        response.EnsureSuccessStatusCode();
+
+//        var responseBody = await response.Content.ReadAsStringAsync();
+//        var parsedJson = JObject.Parse(responseBody);
+//        string answer = parsedJson["response"]?.ToString() ?? "No response";
+
+//        return Ok(new { Answer = answer });
+//    }
+//    catch (Exception ex)
+//    {
+//        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
+//    }
+//}
+
+///// <summary>
+///// Calls another AI API (OpenAI-style).
+///// </summary>
+//[HttpPost("kerko")]
+//public async Task<IActionResult> Kerko([FromBody] string teksti)
+//{
+//    try
+//    {
+//        string apiUrl = "http://localhost:4891/v1/chat/completions"; // OpenAI-style API
+
+//        var requestData = new
+//        {
+//            model = "Llama 3 8B Instruct",
+//            max_tokens = 2048,
+//            messages = new[]
+//            {
+//                new { role = "system", content = "You are an AI assistant." },
+//                new { role = "user", content = teksti }
+//            }
+//        };
+
+//        var jsonRequest = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+//        var response = await _httpClient.PostAsync(apiUrl, jsonRequest);
+//        response.EnsureSuccessStatusCode();
+
+//        var responseBody = await response.Content.ReadAsStringAsync();
+//        var parsedJson = JObject.Parse(responseBody);
+//        string answer = parsedJson["choices"]?[0]?["messages"]?["content"]?.ToString() ?? "No response";
+
+//        return Ok(new { Answer = answer });
+//    }
+//    catch (Exception ex)
+//    {
+//        return BadRequest(new { Answer = "Gabim", Error = ex.Message });
+//    }
+//}
+
