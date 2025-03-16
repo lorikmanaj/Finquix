@@ -17,11 +17,11 @@ namespace FinquixAPI.Infrastructure.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<StockAsset>().HasData(
-                new StockAsset { Id = 1, Symbol = "AAPL", Name = "Apple Inc.", CurrentPrice = 150.23m, ChangePercent = 0, LastUpdated = DateTime.UtcNow },
-                new StockAsset { Id = 2, Symbol = "GOOGL", Name = "Alphabet Inc.", CurrentPrice = 2725.67m, ChangePercent = 0, LastUpdated = DateTime.UtcNow },
-                new StockAsset { Id = 3, Symbol = "MSFT", Name = "Microsoft Corp.", CurrentPrice = 299.12m, ChangePercent = 0, LastUpdated = DateTime.UtcNow }
-            );
+            //modelBuilder.Entity<StockAsset>().HasData(
+            //    new StockAsset { Id = 1, Symbol = "AAPL", Name = "Apple Inc.", CurrentPrice = 150.23m, ChangePercent = 0, LastUpdated = DateTime.UtcNow },
+            //    new StockAsset { Id = 2, Symbol = "GOOGL", Name = "Alphabet Inc.", CurrentPrice = 2725.67m, ChangePercent = 0, LastUpdated = DateTime.UtcNow },
+            //    new StockAsset { Id = 3, Symbol = "MSFT", Name = "Microsoft Corp.", CurrentPrice = 299.12m, ChangePercent = 0, LastUpdated = DateTime.UtcNow }
+            //);
         }
     }
 }
