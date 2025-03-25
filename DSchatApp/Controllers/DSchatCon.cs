@@ -23,7 +23,7 @@ namespace DSchatApp.Controllers
         public async Task<ViewResult> Kerko1(string Teksti) 
         {
             //ViewBag.Answer = "Loading...";
-            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("deepseek-r1:1.5b", "http://localhost:11434");//llama3.2
+            var kbuilder = Kernel.CreateBuilder().AddOllamaChatCompletion("llama3.2", "http://localhost:11434");//llama3.2 //deepseek-r1:1.5b
             kbuilder.Services.AddScoped<HttpClient>();
             var kernel = kbuilder.Build();
            
