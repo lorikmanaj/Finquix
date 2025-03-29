@@ -40,15 +40,20 @@
             <h3>Financial Goals</h3>
             <div formArrayName="financialGoals">
                 <div *ngFor="let goal of financialGoals.controls; let i = index" [formGroupName]="i">
-
                     <mat-form-field appearance="outline">
                         <mat-label>Goal Type</mat-label>
                         <mat-select formControlName="goalType">
-                            <mat-option value="DebtRepayment">Pay Off Debt</mat-option>
-                            <mat-option value="HousePurchase">Buy a House</mat-option>
-                            <mat-option value="Retirement">Retirement</mat-option>
-                            <mat-option value="SaveForEducation">Save for Education</mat-option>
+                            <mat-option *ngFor="let goal of predefinedGoals" [value]="goal.value">
+                                {{ goal.label }}
+                            </mat-option>
+                            <mat-option value="custom">Other (Custom)</mat-option>
                         </mat-select>
+                    </mat-form-field>
+
+                    <!-- This will ONLY show when "Other (Custom)" is selected -->
+                    <mat-form-field *ngIf="goal.get('goalType')?.value === 'custom'" appearance="outline">
+                        <mat-label>Enter Custom Goal</mat-label>
+                        <input matInput formControlName="customGoal" />
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">

@@ -8,7 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserProfileService } from '../../../services/components/user-profile.service';
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-onboarding',
@@ -16,6 +16,7 @@ import { NgFor } from '@angular/common';
   imports: [
     ReactiveFormsModule,
     FormsModule,
+    NgIf,
     NgFor,
     MatCardModule,
     MatFormFieldModule,
@@ -30,6 +31,13 @@ import { NgFor } from '@angular/common';
 export class OnboardingComponent implements OnInit {
   onboardingForm: FormGroup;
   userId: number | null = null;
+
+  predefinedGoals = [
+    { value: 'DebtRepayment', label: 'Pay Off Debt' },
+    { value: 'HousePurchase', label: 'Buy a House' },
+    { value: 'Retirement', label: 'Retirement' },
+    { value: 'SaveForEducation', label: 'Save for Education' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -51,39 +59,11 @@ export class OnboardingComponent implements OnInit {
         savings: [''],
         debt: [''],
         emergencyFund: [''],
-        monthlyBudget: [{ value: '', disabled: true }], // Computed, read-only
-        totalNetWorth: [{ value: '', disabled: true }] // Computed, read-only
+        monthlyBudget: [{ value: '', disabled: true }],
+        totalNetWorth: [{ value: '', disabled: true }]
       }),
       riskTolerance: ['Medium']
     });
-
-    // this.onboardingForm = this.fb.group({
-    //   name: ['', Validators.required],
-    //   age: ['', [Validators.required, Validators.min(18)]],
-    //   employmentStatus: ['', Validators.required],
-    //   dependents: ['', [Validators.required, Validators.min(0)]],
-    //   investmentBehavior: ['Moderate', Validators.required],
-    //   riskTolerance: ['Medium', Validators.required],
-
-    //   financialGoals: this.fb.array([
-    //     this.createFinancialGoal('DebtRepayment'),
-    //     this.createFinancialGoal('HousePurchase'),
-    //     this.createFinancialGoal('Retirement'),
-    //     this.createFinancialGoal('EducationSavings')
-    //   ]),
-
-    //   financialData: this.fb.group({
-    //     income: ['', [Validators.required, Validators.min(0)]],
-    //     fixedExpenses: ['', [Validators.required, Validators.min(0)]],
-    //     variableExpenses: ['', [Validators.required, Validators.min(0)]],
-    //     savings: ['', [Validators.required, Validators.min(0)]],
-    //     investments: ['', [Validators.required, Validators.min(0)]],
-    //     debt: ['', [Validators.required, Validators.min(0)]],
-    //     emergencyFund: ['', [Validators.required, Validators.min(0)]],
-    //     monthlyBudget: [{ value: '', disabled: true }], // Computed, read-only
-    //     totalNetWorth: [{ value: '', disabled: true }] // Computed, read-only
-    //   })
-    // });
   }
 
   ngOnInit(): void {
@@ -93,7 +73,7 @@ export class OnboardingComponent implements OnInit {
         this.userProfileService.getUserProfileById(this.userId).subscribe(
           (data) => {
             this.onboardingForm.patchValue(data);
-            this.updateComputedFields(); 
+            this.updateComputedFields();
           },
           (error) => console.error('Failed to load user profile:', error)
         );
@@ -107,7 +87,6 @@ export class OnboardingComponent implements OnInit {
 
   updateComputedFields() {
     const financialData = this.onboardingForm.get('financialData')?.value;
-
     const income = Number(financialData.income) || 0;
     const fixedExpenses = Number(financialData.fixedExpenses) || 0;
     const variableExpenses = Number(financialData.variableExpenses) || 0;
@@ -122,21 +101,10 @@ export class OnboardingComponent implements OnInit {
     this.onboardingForm.get('financialData.totalNetWorth')?.setValue(totalNetWorth, { emitEvent: false });
   }
 
-  createFinancialGoal(goalType: string) {
-    return this.fb.group({
-      goalType: [goalType],
-      isActive: [false],
-      estimatedValue: ['', [Validators.required, Validators.min(1000)]],
-      currentProgress: ['', [Validators.required, Validators.min(0)]],
-      monthlyContribution: ['', [Validators.required, Validators.min(0)]],
-      startDate: ['', Validators.required],
-      targetDate: ['', Validators.required]
-    });
-  }
-
   addFinancialGoal() {
     const goalForm = this.fb.group({
       goalType: [''],
+      customGoal: [''],
       estimatedValue: [''],
       monthlyContribution: [''],
       targetDate: [''],
