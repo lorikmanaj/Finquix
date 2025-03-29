@@ -3,6 +3,8 @@ import { Answer } from '../../../models/answer';
 import { Question } from '../../../models/question';
 import { ChatService } from '../../../services/components/chat.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
+import { UserQuery } from '../../../models/userQuery';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
@@ -17,9 +19,17 @@ export class ChatComponent implements OnInit {
   messages: { type: 'user' | 'ai'; text: string }[] = [];
   isLoading = false;
 
-  constructor(private chatService: ChatService, private cdr: ChangeDetectorRef) { }
+  userId: number = 1; // default to 1 if missing
+
+  constructor(private chatService: ChatService,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.userId = +params['userId'] || 1;
+    });
+
     this.fetchQuestions();
   }
 
@@ -30,11 +40,11 @@ export class ChatComponent implements OnInit {
     });
   }
 
-  sendQuestion(question: Question): void {
+  sendQuestion(userQuery: UserQuery): void {
     this.isLoading = true;
-    this.messages.push({ type: 'user', text: question.text });
+    this.messages.push({ type: 'user', text: userQuery.question.text });
 
-    this.chatService.askQuestion(question).subscribe({
+    this.chatService.askQuestion(userQuery).subscribe({
       next: (response: Answer) => {
         console.log('API Response:', response);
 

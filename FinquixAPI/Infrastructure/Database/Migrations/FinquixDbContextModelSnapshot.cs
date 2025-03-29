@@ -36,9 +36,6 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
 
                     b.ToTable("Questions");

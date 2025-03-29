@@ -3,6 +3,7 @@ using FinquixAPI.Infrastructure.Database;
 using FinquixAPI.Infrastructure.Services.FinancialAnalysis;
 using FinquixAPI.Infrastructure.Services.MarketData;
 using FinquixAPI.Models.AI;
+using FinquixAPI.Models.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
@@ -13,13 +14,11 @@ namespace FinquixAPI.Controllers.AI
     [ApiController]
     public class DSChatCon(FinquixDbContext context,
         IFinancialAnalysisService financialService,
-        IMarketDataSimulatorService marketService,
-        HttpClient httpClient) : ControllerBase
+        IMarketDataSimulatorService marketService) : ControllerBase
     {
         private readonly FinquixDbContext _context = context;
         private readonly IFinancialAnalysisService _financialService = financialService;
         private readonly IMarketDataSimulatorService _marketService = marketService;
-        private readonly HttpClient _httpClient = httpClient;
 
         [HttpGet("questions")]
         public async Task<ActionResult<IEnumerable<Question>>> GetQuestions()
@@ -28,7 +27,7 @@ namespace FinquixAPI.Controllers.AI
         }
 
         [HttpPost("ask")]
-        public async Task<IActionResult> Ask([FromBody] Question input)
+        public async Task<IActionResult> Ask([FromBody] UserQuery input)
         {
             var kbuilder = Kernel.CreateBuilder()
                 .AddOllamaChatCompletion("llama3.2", "http://localhost:11434");
@@ -52,7 +51,7 @@ namespace FinquixAPI.Controllers.AI
                 🔹 **Crypto Market Signals:**
                 {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
 
-                💬 **User Question:** {input.Text}
+                💬 **User Question:** {input.Question.Text}
             ";
 
             var response = await kernel.InvokePromptAsync(aiPrompt);
