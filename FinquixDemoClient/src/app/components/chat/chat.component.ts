@@ -5,11 +5,12 @@ import { ChatService } from '../../../services/components/chat.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { UserQuery } from '../../../models/userQuery';
 import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass],
+  imports: [FormsModule, NgIf, NgFor, NgClass],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -20,6 +21,8 @@ export class ChatComponent implements OnInit {
   isLoading = false;
 
   userId: number = 1; // default to 1 if missing
+
+  userInput: string = '';
 
   constructor(private chatService: ChatService,
     private cdr: ChangeDetectorRef,
@@ -63,6 +66,22 @@ export class ChatComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  sendUserInput(): void {
+    if (!this.userInput.trim()) return;
+
+    const userQuery: UserQuery = {
+      userId: this.userId,
+      question: {
+        id: 0, // or leave undefined
+        category: 'custom',
+        text: this.userInput.trim()
+      }
+    };
+
+    this.sendQuestion(userQuery);
+    this.userInput = '';
   }
 
   resetChat(): void {

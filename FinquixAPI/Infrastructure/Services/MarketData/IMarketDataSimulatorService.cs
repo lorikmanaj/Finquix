@@ -8,5 +8,7 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
         Task GenerateAndUpdateMarketData();
         Task<List<CryptoAsset>> GetCryptoAssetsAsync();
         Task<List<FinancialSignal>> GetFinancialSignalsAsync();
+        Task<List<FinancialSignal>> GetLatestStockDataAsync();
+        Task<List<CryptoAsset>> GetLatestCryptoDataAsync();
     }
 }

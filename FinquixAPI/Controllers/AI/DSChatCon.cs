@@ -36,8 +36,11 @@ namespace FinquixAPI.Controllers.AI
             var kernel = kbuilder.Build();
 
             var userData = await _financialService.AnalyzeUserFinances(input.UserId);
-            var stockMarketData = await _marketService.GetFinancialSignalsAsync();
-            var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
+            //var stockMarketData = await _marketService.GetFinancialSignalsAsync();
+            //var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
+
+            var stockMarketData = await _marketService.GetLatestStockDataAsync();
+            var cryptoMarketData = await _marketService.GetLatestCryptoDataAsync();
 
             var aiPrompt = $@"
                 User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.

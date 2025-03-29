@@ -12,6 +12,15 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
         private readonly Random _random = new();
         private readonly FinquixDbContext _context = context;
 
+        private static List<FinancialSignal> _latestStockData;
+        private static List<CryptoAsset> _latestCryptoData;
+
+        public async Task<List<FinancialSignal>> GetLatestStockDataAsync()
+            => _latestStockData;
+
+        public async Task<List<CryptoAsset>> GetLatestCryptoDataAsync()
+            => _latestCryptoData;
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -82,6 +91,9 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
             }
 
             await context.SaveChangesAsync();
+
+            _latestStockData = financialSignals;
+            _latestCryptoData = cryptoAssets;
         }
 
         public async Task<List<CryptoAsset>> GetCryptoAssetsAsync()

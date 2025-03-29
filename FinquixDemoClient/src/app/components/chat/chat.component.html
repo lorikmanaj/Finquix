@@ -12,11 +12,17 @@
             <div *ngIf="isLoading" class="loading">...</div>
         </div>
 
-        <div class="questions">
+        <!-- <div class="questions">
             <button *ngFor="let question of questions" class="question-btn"
                 (click)="sendQuestion({ userId: userId, question })">
                 {{ question.text }}
             </button>
+        </div> -->
+        <div class="input-container">
+            <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendUserInput()"
+                placeholder="Type your question..." />
+            <button (click)="sendUserInput()">Send</button>
         </div>
+
     </div>
 </div>
