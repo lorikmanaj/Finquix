@@ -1,3 +1,4 @@
 export interface Answer {
-    answerDS: string;
+    summary: string;
+    details?: string;
 }

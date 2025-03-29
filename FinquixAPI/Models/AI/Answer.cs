@@ -2,6 +2,7 @@
 {
     public class Answer
     {
-        public string AnswerDS { get; set; }
+        public string Summary { get; set; }
+        public string Details { get; set; }
     }
 }

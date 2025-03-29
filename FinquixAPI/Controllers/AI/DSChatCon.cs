@@ -55,14 +55,21 @@ namespace FinquixAPI.Controllers.AI
                 {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
 
                 💬 **User Question:** {input.Question.Text}
+
+                ✂️ Please reply with:
+                1. A **very short summary answer** (max 2 sentences).
+                2. Then a **longer explanation** below a line like: '--- Details ---'
             ";
 
             var response = await kernel.InvokePromptAsync(aiPrompt);
             var responseText = response.ToString();
 
+            var parts = responseText.Split(["--- Details ---"], StringSplitOptions.None);
+
             var ans = new Answer
             {
-                AnswerDS = responseText.Contains("<think>") ? responseText.Substring(17) : responseText
+                Summary = parts.ElementAtOrDefault(0)?.Trim(),
+                Details = parts.ElementAtOrDefault(1)?.Trim()
             };
 
             return Ok(ans);

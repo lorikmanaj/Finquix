@@ -16,13 +16,16 @@ import { FormsModule } from '@angular/forms';
 })
 export class ChatComponent implements OnInit {
   isOpen = false;
-  questions: Question[] = [];
-  messages: { type: 'user' | 'ai'; text: string }[] = [];
   isLoading = false;
-
-  userId: number = 1; // default to 1 if missing
-
+  userId: number = 1;
   userInput: string = '';
+
+  questions: Question[] = [];
+
+  messages: {
+    type: 'user' | 'ai';
+    text: string | (Answer & { showDetails?: boolean });
+  }[] = [];
 
   constructor(private chatService: ChatService,
     private cdr: ChangeDetectorRef,
@@ -38,50 +41,72 @@ export class ChatComponent implements OnInit {
 
   fetchQuestions(): void {
     this.chatService.getQuestions().subscribe({
-      next: (data) => (this.questions = data),
-      error: (error) => console.error('Error fetching questions:', error)
+      next: data => (this.questions = data),
+      error: error => console.error('Error fetching questions:', error)
     });
   }
 
-  sendQuestion(userQuery: UserQuery): void {
-    this.isLoading = true;
-    this.messages.push({ type: 'user', text: userQuery.question.text });
+  isAnswer(text: string | { summary: string; details?: string; showDetails?: boolean }): text is Answer & { showDetails?: boolean } {
+    return typeof text !== 'string' && 'summary' in text;
+  }
 
-    this.chatService.askQuestion(userQuery).subscribe({
-      next: (response: Answer) => {
-        console.log('API Response:', response);
-
-        if (response && response.answerDS) {
-          this.messages.push({ type: 'ai', text: response.answerDS });
-        } else {
-          console.error('Unexpected API response format:', response);
-          this.messages.push({ type: 'ai', text: 'Error: Unexpected response from AI' });
-        }
-
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error getting AI response:', error);
-        this.isLoading = false;
-      }
-    });
+  getAiAnswer(message: any): Answer & { showDetails?: boolean } | null {
+    if (typeof message === 'object' && message !== null && 'summary' in message) {
+      return message as Answer & { showDetails?: boolean };
+    }
+    return null;
   }
 
   sendUserInput(): void {
-    if (!this.userInput.trim()) return;
+    const input = this.userInput.trim();
+    if (!input) return;
+
+    this.messages.push({ type: 'user', text: input });
 
     const userQuery: UserQuery = {
       userId: this.userId,
       question: {
-        id: 0, // or leave undefined
+        id: 0,
         category: 'custom',
-        text: this.userInput.trim()
+        text: input
       }
     };
 
-    this.sendQuestion(userQuery);
     this.userInput = '';
+    this.sendQuestion(userQuery);
+  }
+
+  sendQuestion(userQuery: UserQuery): void {
+    this.isLoading = true;
+
+    this.chatService.askQuestion(userQuery).subscribe({
+      next: (response: Answer) => {
+        this.messages.push({
+          type: 'ai',
+          text: {
+            summary: response.summary,
+            details: response.details,
+            showDetails: false
+          }
+        });
+
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Error getting AI response:', error);
+        this.messages.push({ type: 'ai', text: 'Error: Unexpected response from AI' });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // toggleDetails(message: any): void {
+  //   message.text.showDetails = !message.text.showDetails;
+  //   this.cdr.detectChanges();
+  // }
+  toggleDetails(answer: Answer & { showDetails?: boolean }) {
+    answer.showDetails = !answer.showDetails;
   }
 
   resetChat(): void {
