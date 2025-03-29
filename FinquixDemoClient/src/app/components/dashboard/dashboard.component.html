@@ -1,43 +1,171 @@
-<h2>Dashboard</h2>
-<p>Welcome to your financial dashboard!</p>
+<div class="dashboard-container">
+    <h2>Financial Dashboard</h2>
 
-<div *ngIf="userProfile; else noData">
-    <h3>Welcome, {{ userProfile.name }}!</h3>
-    <p><strong>Age:</strong> {{ userProfile.age }}</p>
-    <p><strong>Employment Status:</strong> {{ userProfile.employmentStatus }}</p>
-    <p><strong>Risk Tolerance:</strong> {{ userProfile.financialData?.riskTolerance || 'N/A' }}</p>
+    <div *ngIf="userProfile; else noData">
+        <!-- Welcome Section -->
+        <mat-card class="welcome-card">
+            <h3>Welcome, {{ userProfile.name }}!</h3>
+            <div class="profile-stats">
+                <div>
+                    <span class="stat-label">Age:</span>
+                    <span class="stat-value">{{ userProfile.age || 'N/A' }}</span>
+                </div>
+                <div>
+                    <span class="stat-label">Employment:</span>
+                    <span class="stat-value">{{ userProfile.employmentStatus || 'N/A' }}</span>
+                </div>
+                <div>
+                    <span class="stat-label">Risk Tolerance:</span>
+                    <span class="stat-value">{{ userProfile.riskTolerance || 'N/A' }}</span>
+                </div>
+            </div>
+        </mat-card>
 
-    <h3>Financial Goals</h3>
-    <ul>
-        <li *ngFor="let goal of userProfile.financialGoals">
-            <strong>{{ goal.goalType }}</strong> -
-            <span [ngStyle]="{ color: goal.isActive ? 'green' : 'red' }">
-                {{ goal.isActive ? 'Active' : 'Inactive' }}
-            </span>
-            <p>Estimated Value: ${{ goal.estimatedValue }}</p>
-            <p>Monthly Contribution: ${{ goal.monthlyContribution }}</p>
-            <p>Progress: {{ goal.progressPercentage | number: '1.2-2' }}%</p>
-            <p>Target Date: {{ goal.targetDate | date: 'MMM yyyy' }}</p>
-        </li>
-    </ul>
+        <!-- Financial Goals Section -->
+        <div class="goals-section">
+            <h3>Your Financial Goals</h3>
 
-    <h3>Income & Expenses</h3>
-    <p><strong>Income:</strong> ${{ userProfile.financialData?.income || 0 }}</p>
-    <p><strong>Fixed Expenses:</strong> ${{ userProfile.financialData?.fixedExpenses || 0 }}</p>
-    <p><strong>Variable Expenses:</strong> ${{ userProfile.financialData?.variableExpenses || 0 }}</p>
+            <!-- Active Goals -->
+            <div *ngIf="activeGoals.length > 0">
+                <h4>Active Goals</h4>
+                <div class="goals-grid">
+                    <mat-card *ngFor="let goal of activeGoals" class="goal-card">
+                        <div class="goal-header">
+                            <h4>{{ getGoalDisplayName(goal) }}</h4>
+                            <span class="active-badge">ACTIVE</span>
+                        </div>
 
-    <h3>Savings & Investments</h3>
-    <p><strong>Savings:</strong> ${{ userProfile.financialData?.savings || 0 }}</p>
-    <p><strong>Investments:</strong> ${{ userProfile.financialData?.investments || 0 }}</p>
-    <p><strong>Debt:</strong> ${{ userProfile.financialData?.debt || 0 }}</p>
-    <p><strong>Emergency Fund:</strong> ${{ userProfile.financialData?.emergencyFund || 0 }}</p>
+                        <mat-progress-bar mode="determinate" [value]="goal.progressPercentage"
+                            [ngClass]="{'warn-progress': !goal.isOnTrack}">
+                        </mat-progress-bar>
 
-    <h3>Computed Values</h3>
-    <p><strong>Monthly Budget:</strong> ${{ userProfile.financialData?.monthlyBudget || 0 }}</p>
-    <p><strong>Total Net Worth:</strong> ${{ userProfile.financialData?.totalNetWorth || 0 }}</p>
-    <p><strong>Savings Rate:</strong> {{ savingsRate }}</p>
+                        <div class="progress-text">
+                            {{ goal.progressPercentage | number: '1.0-0' }}% complete
+                            <span *ngIf="!goal.isOnTrack" class="warning-text">(Behind schedule)</span>
+                        </div>
+
+                        <div class="goal-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Target:</span>
+                                <span class="detail-value">${{ goal.estimatedValue | number }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Saved:</span>
+                                <span class="detail-value">${{ goal.savedAmount | number }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Monthly:</span>
+                                <span class="detail-value">${{ goal.monthlyContribution | number }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Target Date:</span>
+                                <span class="detail-value">{{ goal.targetDate | date: 'MMM yyyy' }}</span>
+                            </div>
+                        </div>
+                    </mat-card>
+                </div>
+            </div>
+
+            <!-- Inactive Goals -->
+            <div *ngIf="inactiveGoals.length > 0" class="inactive-goals">
+                <h4>Inactive Goals</h4>
+                <div class="goals-grid">
+                    <mat-card *ngFor="let goal of inactiveGoals" class="goal-card inactive">
+                        <div class="goal-header">
+                            <h4>{{ getGoalDisplayName(goal) }}</h4>
+                            <span class="inactive-badge">INACTIVE</span>
+                        </div>
+                        <div class="goal-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Target Amount:</span>
+                                <span>${{ goal.estimatedValue | number }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Target Date:</span>
+                                <span>{{ goal.targetDate | date: 'MMM yyyy' }}</span>
+                            </div>
+                        </div>
+                    </mat-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Overview Section -->
+        <div class="financial-overview">
+            <h3>Financial Overview</h3>
+            <div class="overview-grid">
+                <!-- Income & Expenses -->
+                <mat-card class="overview-card">
+                    <h4>Income & Expenses</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Monthly Income:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.income | number }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Fixed Expenses:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.fixedExpenses | number }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Variable Expenses:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.variableExpenses | number }}</span>
+                    </div>
+                    <div class="detail-row highlight">
+                        <span class="detail-label">Monthly Budget:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.monthlyBudget | number }}</span>
+                    </div>
+                </mat-card>
+
+                <!-- Savings & Investments -->
+                <mat-card class="overview-card">
+                    <h4>Savings & Investments</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Savings:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.savings | number }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Emergency Fund:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.emergencyFund | number }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Debt:</span>
+                        <span class="detail-value">${{ userProfile.financialData?.debt | number }}</span>
+                    </div>
+                    <div class="detail-row highlight">
+                        <span class="detail-label">Savings Rate:</span>
+                        <span class="detail-value">{{ savingsRate }}</span>
+                    </div>
+                </mat-card>
+
+                <!-- Net Worth -->
+                <mat-card class="overview-card">
+                    <h4>Net Worth</h4>
+                    <div class="net-worth-display">
+                        <span class="net-worth-label">Total Net Worth:</span>
+                        <span class="net-worth-value" [ngClass]="{'positive': userProfile.financialData?.totalNetWorth >= 0, 
+                                'negative': userProfile.financialData?.totalNetWorth < 0}">
+                            ${{ userProfile.financialData?.totalNetWorth | number }}
+                        </span>
+                    </div>
+                    <div class="net-worth-breakdown">
+                        <div class="breakdown-row">
+                            <span>Assets:</span>
+                            <span>${{ (userProfile.financialData?.savings || 0) +
+                                (userProfile.financialData?.emergencyFund || 0) | number }}</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Liabilities:</span>
+                            <span>${{ userProfile.financialData?.debt | number }}</span>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #noData>
+        <mat-card class="no-data-card">
+            <p>No user data available. Please complete onboarding first.</p>
+            <button mat-raised-button color="primary" routerLink="/onboarding">Complete Onboarding</button>
+        </mat-card>
+    </ng-template>
 </div>
-
-<ng-template #noData>
-    <p>No user data available. Please complete onboarding first.</p>
-</ng-template>
