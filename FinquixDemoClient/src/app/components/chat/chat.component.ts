@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Answer } from '../../../models/answer';
 import { Question } from '../../../models/question';
 import { ChatService } from '../../../services/components/chat.service';
@@ -9,6 +9,9 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CryptoMarketService } from '../../../services/components/crypto-market.service';
+import { StockMarketService } from '../../../services/components/stock-market.service';
+import { map, Subject, switchMap, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-chat',
@@ -25,7 +28,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, OnDestroy {
   isOpen = false;
   isLoading = false;
   userId: number = 1;
@@ -36,10 +39,14 @@ export class ChatComponent implements OnInit {
   }> = [];
   questions: Question[] = [];
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private chatService: ChatService,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private stockMarketService: StockMarketService,
+    private cryptoMarketService: CryptoMarketService
   ) { }
 
   ngOnInit(): void {
@@ -47,6 +54,11 @@ export class ChatComponent implements OnInit {
       this.userId = +params['userId'] || 1;
     });
     this.fetchQuestions();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   fetchQuestions(): void {
@@ -74,40 +86,82 @@ export class ChatComponent implements OnInit {
     this.messages.push({ type: 'user', text: input });
     this.userInput = '';
     this.scrollToBottom();
+    this.isLoading = true;
 
+    this.stockMarketService.getStockAssets().pipe(
+      takeUntil(this.destroy$),
+      switchMap(stocks =>
+        this.cryptoMarketService.getCryptoAssets().pipe(
+          takeUntil(this.destroy$),
+          map(crypto => [stocks, crypto])
+        )
+      )
+    ).subscribe({
+      next: ([stocks, crypto]) => {
+        this.processQuestionWithContext(input, stocks, crypto);
+      },
+      error: (error) => {
+        console.error('Error fetching market data:', error);
+        this.processQuestionWithoutContext(input);
+      }
+    });
+  }
+
+  private processQuestionWithContext(
+    input: string,
+    stocks: any[],
+    crypto: any[]
+  ): void {
+    const userQueryWithContext = {
+      userId: this.userId,
+      questionText: input,
+      currentStockData: stocks,
+      currentCryptoData: crypto
+    };
+
+    this.chatService.askQuestionWithContext(userQueryWithContext).subscribe({
+      next: (response: Answer) => this.handleAiResponse(response),
+      error: (error) => this.handleErrorResponse(error)
+    });
+  }
+
+  private processQuestionWithoutContext(input: string): void {
     const userQuery: UserQuery = {
       userId: this.userId,
       questionText: input
     };
 
-    this.isLoading = true;
     this.chatService.askQuestion(userQuery).subscribe({
-      next: (response: Answer) => {
-        this.messages.push({
-          type: 'ai',
-          text: {
-            summary: response.summary || "No response received",
-            details: response.details,
-            showDetails: false
-          }
-        });
-        this.isLoading = false;
-        this.scrollToBottom();
-      },
-      error: error => {
-        console.error('Error getting AI response:', error);
-        this.messages.push({
-          type: 'ai',
-          text: {
-            summary: 'Error: Could not get AI response',
-            details: error.message,
-            showDetails: false
-          }
-        });
-        this.isLoading = false;
-        this.scrollToBottom();
+      next: (response: Answer) => this.handleAiResponse(response),
+      error: (error) => this.handleErrorResponse(error)
+    });
+  }
+
+  private handleAiResponse(response: Answer): void {
+    this.messages.push({
+      type: 'ai',
+      text: {
+        summary: response.summary || "No response received",
+        details: response.details,
+        showDetails: false
       }
     });
+    this.isLoading = false;
+    this.scrollToBottom();
+  }
+
+  private handleErrorResponse(error: any): void {
+    console.error('Error getting AI response:', error);
+    this.messages.push({
+      type: 'ai',
+      text: {
+        summary: 'Error: Could not get AI response',
+        details: error.message,
+        showDetails: false
+      }
+    });
+    this.isLoading = false;
+    this.scrollToBottom();
   }
 
   toggleDetails(answer: Answer & { showDetails?: boolean }): void {

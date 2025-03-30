@@ -4,6 +4,7 @@ import { Answer } from '../../models/answer';
 import { Question } from '../../models/question';
 import { ApiService } from '../global/api.service';
 import { UserQuery } from '../../models/userQuery';
+import { UserQueryWithContextDto } from '../../models/userQueryWithContextDto';
 
 @Injectable({
   providedIn: 'root'
@@ -16,5 +17,9 @@ export class ChatService extends ApiService {
 
   askQuestion(userQuery: UserQuery): Observable<Answer> {
     return this.post<Answer, UserQuery>('DSChatCon/ask', userQuery);
+  }
+
+  askQuestionWithContext(userQuery: UserQueryWithContextDto): Observable<Answer> {
+    return this.post<Answer, UserQueryWithContextDto>('DSChatCon/ask-with-context', userQuery);
   }
 }
