@@ -76,8 +76,8 @@ namespace FinquixAPI.Controllers.AI
                     💬 **User Question:** {input.QuestionText}
 
                     ✂️ Please reply with:
-                    1. A **very short summary answer** (max 2 sentences).
-                    2. Then a **longer explanation** below a line like: '--- Details ---'
+                    - A **very short summary answer** (max 2 sentences).
+                    - Then a **longer explanation** below a line like: '--- Details ---'
                     ";
 
                 var response = await kernel.InvokePromptAsync(aiPrompt);
