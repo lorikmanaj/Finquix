@@ -217,3 +217,55 @@
         height: 70vh;
     }
 }
+
+/* Questions Styles */
+.suggested-questions {
+    padding: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+    border-bottom: 1px solid #eee;
+}
+
+.suggested-questions h4 {
+    margin: 0 0 12px 0;
+    color: #3f51b5;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.question-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.category h5 {
+    margin: 0 0 8px 0;
+    color: #666;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.question-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.question-tile {
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    word-break: break-word;
+}
+
+.question-tile:hover {
+    background: #bbdefb;
+    transform: translateY(-2px);
+}

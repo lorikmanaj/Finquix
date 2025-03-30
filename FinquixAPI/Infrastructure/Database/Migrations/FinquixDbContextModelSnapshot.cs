@@ -75,6 +75,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("CryptoAssets");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.Assets.StockAsset", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,6 +129,13 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.Property<string>("RiskTolerance")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Savings")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalNetWorth")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("[Savings] + [Investments] - [Debt]", true);
 
                     b.Property<int>("UserProfileId")
                         .HasColumnType("int");
@@ -143,6 +151,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("FinancialData");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.Financials.FinancialGoal", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -186,6 +195,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("FinancialGoals");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.Financials.FinancialSignal", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -222,6 +232,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("FinancialSignals");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.User.UserProfile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -249,15 +260,20 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.Financials.FinancialData", b =>
                 {
+                    b.HasOne("FinquixAPI.Models.User.UserProfile", "UserProfile")
                         .WithOne("FinancialData")
+                        .HasForeignKey("FinquixAPI.Models.Financials.FinancialData", "UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.Financials.FinancialGoal", b =>
                 {
+                    b.HasOne("FinquixAPI.Models.User.UserProfile", "UserProfile")
                         .WithMany("FinancialGoals")
                         .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -266,6 +282,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.User.UserProfile", b =>
                 {
                     b.Navigation("FinancialData");
 

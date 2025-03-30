@@ -33,20 +33,28 @@ namespace FinquixAPI.Infrastructure.Database
         }
 
         //Seed Questions
-        //public static void SeedAIQuestions(FinquixDbContext context)
-        //{
-        //    if (!context.Questions.Any())
-        //    {
-        //        context.Questions.AddRange(new List<Questions>
-        //        {
-        //            new() { Category = "Crypto", Text = "Should I invest in Bitcoin now?" },
-        //            new() { Category = "Crypto", Text = "Is Ethereum a good buy right now?" },
-        //            new() { Category = "Stocks", Text = "Should I sell my Tesla stock?" },
-        //            new() { Category = "Stocks", Text = "Is Apple stock a strong hold?" }
-        //        });
-        //        context.SaveChanges();
-        //    }
-        //}
+        public static void SeedQuestionsIfMissing(IServiceProvider services)
+        {
+            using var scope = services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FinquixDbContext>();
 
+            var predefinedQuestions = new List<Question>
+            {
+                new() { Category = "Personal", Text = "Hi, can you please tell me how much money I have available for investing?" },
+                new() { Category = "Personal", Text = "Is it possible for me to grow my money?" },
+                new() { Category = "Investments", Text = "I am an aggressive investor, how much money should I invest? (10-25% of total balance based on the goals I have)" },
+                new() { Category = "Investments", Text = "How many % of my available money do you recommend for me to invest in cryptocurrency?" },
+                new() { Category = "Crypto", Text = "Which cryptocurrency should I invest in?" },
+                new() { Category = "Stocks", Text = "Which stock option should I invest in?" }
+            };
+
+            foreach (var question in predefinedQuestions)
+            {
+                if (!context.Questions.Any(q => q.Text == question.Text))
+                    context.Questions.Add(question);
+            }
+
+            context.SaveChanges();
+        }
     }
 }

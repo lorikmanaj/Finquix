@@ -1,5 +1,6 @@
 ﻿
 using FinquixAPI.Infrastructure;
+using FinquixAPI.Infrastructure.Database;
 
 namespace FinquixAPI
 {
@@ -20,6 +21,7 @@ namespace FinquixAPI
 
             var app = builder.Build();
             app.RunMigrations();
+            FinquixDbContext.SeedQuestionsIfMissing(app.Services);
 
             ConfigureApp(app);
 

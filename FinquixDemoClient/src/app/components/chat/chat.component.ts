@@ -68,6 +68,35 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Add these methods to your component class
+  getUniqueCategories(): string[] {
+    return [...new Set(this.questions.map(q => q.category))].filter(c => c);
+  }
+
+  getQuestionsByCategory(category: string): Question[] {
+    return this.questions.filter(q => q.category === category);
+  }
+
+  selectQuestion(questionText: string): void {
+    this.userInput = questionText;
+    // Optional: auto-focus the input field
+    setTimeout(() => {
+      const input = document.querySelector('.chat-input input');
+      if (input) {
+        (input as HTMLInputElement).focus();
+      }
+    }, 0);
+  }
+
+  // USE THIS for auto-send on click
+  // selectQuestion(questionText: string): void {
+  //   this.userInput = questionText;
+  //   // Optional: auto-send after short delay
+  //   setTimeout(() => {
+  //     this.sendUserInput();
+  //   }, 300);
+  // }
+
   isAnswer(text: string | { summary: string; details?: string; showDetails?: boolean }): text is Answer & { showDetails?: boolean } {
     return typeof text !== 'string' && 'summary' in text;
   }
