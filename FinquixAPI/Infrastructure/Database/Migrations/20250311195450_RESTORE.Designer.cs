@@ -4,6 +4,7 @@ using FinquixAPI.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinquixAPI.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FinquixDbContext))]
-    partial class FinquixDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250311195450_RESTORE")]
+    partial class RESTORE
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,9 +33,6 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
@@ -41,7 +41,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("FinquixAPI.Models.Assets.CryptoAsset", b =>
+            modelBuilder.Entity("FinquixAPI.Models.CryptoAsset", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,9 +64,6 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("PreviousPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Symbol")
                         .HasColumnType("nvarchar(max)");
 
@@ -75,6 +72,96 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("CryptoAssets");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.FinancialData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("FixedExpenses")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Income")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("RiskTolerance")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("SavingsRate")
+                        .HasColumnType("float");
+
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("VariableExpenses")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId")
+                        .IsUnique();
+
+                    b.ToTable("FinancialData");
+                });
+
+            modelBuilder.Entity("FinquixAPI.Models.FinancialGoal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("GoalType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId");
+
+                    b.ToTable("FinancialGoals");
+                });
+
+            modelBuilder.Entity("FinquixAPI.Models.FinancialSignal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("ChangePercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("CurrentPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Recommendation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SignalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Ticker")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FinancialSignals");
+                });
+
+            modelBuilder.Entity("FinquixAPI.Models.StockAsset", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,126 +189,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("StockAssets");
                 });
 
-            modelBuilder.Entity("FinquixAPI.Models.Financials.FinancialData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Debt")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("EmergencyFund")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("FixedExpenses")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Income")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Investments")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("RiskTolerance")
-                        .HasColumnType("nvarchar(max)");
-
-
-                    b.Property<int>("UserProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("VariableExpenses")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserProfileId")
-                        .IsUnique();
-
-                    b.ToTable("FinancialData");
-                });
-
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("CurrentProgress")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("EstimatedValue")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("GoalType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("MonthlyContribution")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ProgressPercentage")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("(100.0 * [CurrentProgress] / NULLIF([EstimatedValue], 0))", true);
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TargetDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserProfileId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserProfileId");
-
-                    b.ToTable("FinancialGoals");
-                });
-
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("ChangePercent")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("CompanyName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("CurrentPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PredictedChange")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PreviousPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Recommendation")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SignalDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Ticker")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FinancialSignals");
-                });
-
+            modelBuilder.Entity("FinquixAPI.Models.UserProfile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -238,9 +206,6 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.Property<string>("EmploymentStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InvestmentBehavior")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -249,15 +214,20 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.FinancialData", b =>
                 {
+                    b.HasOne("FinquixAPI.Models.UserProfile", "UserProfile")
                         .WithOne("FinancialData")
+                        .HasForeignKey("FinquixAPI.Models.FinancialData", "UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.FinancialGoal", b =>
                 {
+                    b.HasOne("FinquixAPI.Models.UserProfile", "UserProfile")
                         .WithMany("FinancialGoals")
                         .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -266,6 +236,7 @@ namespace FinquixAPI.Infrastructure.Database.Migrations
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("FinquixAPI.Models.UserProfile", b =>
                 {
                     b.Navigation("FinancialData");
 
