@@ -1,27 +1,30 @@
-<div class="chat-container" [class.open]="isOpen">
+<div class="chat-container" [class.expanded]="isOpen">
+    <!-- Header (always visible) -->
     <div class="chat-header" (click)="toggleChat()">
-        <span>💬 AI Financial Assistant</span>
-        <button class="close-btn" *ngIf="isOpen" (click)="resetChat(); $event.stopPropagation();">🔄</button>
+        <div class="chat-header-content">
+            <span class="chat-icon">💬</span>
+            <span class="chat-title">AI Financial Assistant</span>
+        </div>
+        <button class="chat-action-btn" *ngIf="isOpen" (click)="resetChat(); $event.stopPropagation()"
+            matTooltip="Reset chat">
+            <mat-icon>refresh</mat-icon>
+        </button>
     </div>
 
+    <!-- Expanded content (only visible when open) -->
     <div class="chat-body" *ngIf="isOpen">
-        <div class="messages">
+        <div class="chat-messages">
             <div *ngFor="let msg of messages" class="message" [ngClass]="msg.type">
-
-                <!-- User message -->
                 <ng-container *ngIf="msg.type === 'user'">
                     <span>{{ msg.text }}</span>
                 </ng-container>
 
-                <!-- AI message -->
                 <ng-container *ngIf="msg.type === 'ai'">
                     <ng-container *ngIf="getAiAnswer(msg.text) as aiText">
                         <span>{{ aiText.summary }}</span>
-
                         <button *ngIf="aiText.details" (click)="toggleDetails(aiText)" class="toggle-details">
                             {{ aiText.showDetails ? 'Hide Details' : 'Show Details' }}
                         </button>
-
                         <div *ngIf="aiText.showDetails" class="details">
                             {{ aiText.details }}
                         </div>
@@ -29,13 +32,18 @@
                 </ng-container>
             </div>
 
-            <div *ngIf="isLoading" class="loading">...</div>
+            <div *ngIf="isLoading" class="loading">
+                <mat-spinner diameter="20"></mat-spinner>
+                <!-- Loading -->
+            </div>
         </div>
 
-        <div class="input-container">
+        <div class="chat-input">
             <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendUserInput()"
                 placeholder="Type your question..." />
-            <button (click)="sendUserInput()">Send</button>
+            <button (click)="sendUserInput()" [disabled]="!userInput.trim()">
+                <mat-icon>send</mat-icon>
+            </button>
         </div>
     </div>
 </div>

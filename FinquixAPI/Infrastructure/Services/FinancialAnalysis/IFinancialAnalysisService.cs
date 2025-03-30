@@ -9,5 +9,6 @@ namespace FinquixAPI.Infrastructure.Services.FinancialAnalysis
         Task<IEnumerable<UserProfile>> GetAllUserProfilesAsync();
         Task<UserProfile> GetUserProfileByIdAsync(int id);
         Task<UserProfile> CreateUserProfileAsync(UserProfile userProfile);
+        Task<UserProfile> UpdateUserProfileAsync(UserProfile userProfile);
     }
 }

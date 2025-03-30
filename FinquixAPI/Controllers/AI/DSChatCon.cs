@@ -36,9 +36,9 @@ namespace FinquixAPI.Controllers.AI
             var kernel = kbuilder.Build();
 
             var userData = await _financialService.AnalyzeUserFinances(input.UserId);
-            //var stockMarketData = await _marketService.GetFinancialSignalsAsync();
-            //var cryptoMarketData = await _marketService.GetCryptoAssetsAsync();
-
+            if (userData == null)
+                return NotFound("User data not found");
+            
             var stockMarketData = await _marketService.GetLatestStockDataAsync();
             var cryptoMarketData = await _marketService.GetLatestCryptoDataAsync();
 
@@ -54,7 +54,7 @@ namespace FinquixAPI.Controllers.AI
                 🔹 **Crypto Market Signals:**
                 {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
 
-                💬 **User Question:** {input.Question.Text}
+                💬 **User Question:** {input.QuestionText}
 
                 ✂️ Please reply with:
                 1. A **very short summary answer** (max 2 sentences).

@@ -1,4 +1,6 @@
 ﻿using FinquixAPI.Infrastructure.Services.FinancialAnalysis;
+using FinquixAPI.Models.DTOs;
+using FinquixAPI.Models.Financials;
 using FinquixAPI.Models.User;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +38,31 @@ namespace FinquixAPI.Controllers
         {
             var createdProfile = await _financialAnalysisService.CreateUserProfileAsync(userProfile);
             return Ok(createdProfile);
+        }
+
+        [HttpPut("{userId}/goals")]
+        public async Task<IActionResult> UpdateFinancialGoals(int userId, [FromBody] FinancialGoalsUpdateDto updateDto)
+        {
+            var userProfile = await _financialAnalysisService.GetUserProfileByIdAsync(userId);
+            if (userProfile == null) return NotFound();
+
+            userProfile.FinancialGoals = updateDto.FinancialGoals;
+            var updatedProfile = await _financialAnalysisService.UpdateUserProfileAsync(userProfile);
+
+            return Ok(updatedProfile);
+        }
+
+        [HttpPost("{userId}/goals")]
+        public async Task<IActionResult> AddFinancialGoal(int userId, [FromBody] FinancialGoal newGoal)
+        {
+            var userProfile = await _financialAnalysisService.GetUserProfileByIdAsync(userId);
+            if (userProfile == null) return NotFound();
+
+            userProfile.FinancialGoals ??= [];
+            userProfile.FinancialGoals.Add(newGoal);
+
+            var updatedProfile = await _financialAnalysisService.UpdateUserProfileAsync(userProfile);
+            return Ok(updatedProfile);
         }
     }
 }

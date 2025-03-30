@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>{{ data.isEdit ? 'Edit Goal' : 'Add New Goal' }}</h2>
+<mat-dialog-content>
+    <form [formGroup]="goalForm">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Goal Type</mat-label>
+            <mat-select formControlName="goalType" (selectionChange)="onGoalTypeChange($event)">
+                <mat-option *ngFor="let goal of data.predefinedGoals" [value]="goal.value">
+                    {{ goal.label }}
+                </mat-option>
+                <mat-option value="custom">Other (Custom)</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="showCustomInput" appearance="outline" class="full-width">
+            <mat-label>Custom Goal Name</mat-label>
+            <input matInput formControlName="customGoal">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Estimated Value ($)</mat-label>
+            <input matInput type="number" formControlName="estimatedValue">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Monthly Contribution ($)</mat-label>
+            <input matInput type="number" formControlName="monthlyContribution">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Target Date</mat-label>
+            <input matInput type="date" formControlName="targetDate">
+        </mat-form-field>
+
+        <mat-checkbox formControlName="isActive">Active Goal</mat-checkbox>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="!goalForm.valid" (click)="save()">
+        {{ data.isEdit ? 'Update' : 'Add' }}
+    </button>
+</mat-dialog-actions>

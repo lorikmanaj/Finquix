@@ -221,3 +221,27 @@ mat-progress-bar {
         grid-template-columns: 1fr;
     }
 }
+
+/* Add to dashboard.component.css */
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.goal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+button[mat-icon-button] {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+}

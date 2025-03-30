@@ -23,7 +23,12 @@
 
         <!-- Financial Goals Section -->
         <div class="goals-section">
-            <h3>Your Financial Goals</h3>
+            <div class="section-header">
+                <h3>Your Financial Goals</h3>
+                <button mat-raised-button color="primary" (click)="openAddGoalDialog()">
+                    <mat-icon>add</mat-icon> Add Goal
+                </button>
+            </div>
 
             <!-- Active Goals -->
             <div *ngIf="activeGoals.length > 0">
@@ -62,6 +67,18 @@
                                 <span class="detail-value">{{ goal.targetDate | date: 'MMM yyyy' }}</span>
                             </div>
                         </div>
+
+                        <div class="goal-actions">
+                            <button mat-icon-button (click)="openEditGoalDialog(goal)" title="Edit">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="toggleGoalStatus(goal)" title="Mark Inactive">
+                                <mat-icon>toggle_off</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="deleteGoal(goal)" title="Delete">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
                     </mat-card>
                 </div>
             </div>
@@ -84,6 +101,17 @@
                                 <span class="detail-label">Target Date:</span>
                                 <span>{{ goal.targetDate | date: 'MMM yyyy' }}</span>
                             </div>
+                        </div>
+                        <div class="goal-actions">
+                            <button mat-icon-button (click)="openEditGoalDialog(goal)" title="Edit">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="toggleGoalStatus(goal)" title="Mark Active">
+                                <mat-icon>toggle_on</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="deleteGoal(goal)" title="Delete">
+                                <mat-icon>delete</mat-icon>
+                            </button>
                         </div>
                     </mat-card>
                 </div>

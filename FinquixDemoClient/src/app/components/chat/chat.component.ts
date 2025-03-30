@@ -6,11 +6,22 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { UserQuery } from '../../../models/userQuery';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, NgClass],
+  imports: [
+    FormsModule,
+    NgIf,
+    NgFor,
+    NgClass,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -19,29 +30,28 @@ export class ChatComponent implements OnInit {
   isLoading = false;
   userId: number = 1;
   userInput: string = '';
-
-  questions: Question[] = [];
-
-  messages: {
+  messages: Array<{
     type: 'user' | 'ai';
     text: string | (Answer & { showDetails?: boolean });
-  }[] = [];
+  }> = [];
+  questions: Question[] = [];
 
-  constructor(private chatService: ChatService,
+  constructor(
+    private chatService: ChatService,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.userId = +params['userId'] || 1;
     });
-
     this.fetchQuestions();
   }
 
   fetchQuestions(): void {
     this.chatService.getQuestions().subscribe({
-      next: data => (this.questions = data),
+      next: data => this.questions = data,
       error: error => console.error('Error fetching questions:', error)
     });
   }
@@ -62,60 +72,67 @@ export class ChatComponent implements OnInit {
     if (!input) return;
 
     this.messages.push({ type: 'user', text: input });
+    this.userInput = '';
+    this.scrollToBottom();
 
     const userQuery: UserQuery = {
       userId: this.userId,
-      question: {
-        id: 0,
-        category: 'custom',
-        text: input
-      }
+      questionText: input
     };
 
-    this.userInput = '';
-    this.sendQuestion(userQuery);
-  }
-
-  sendQuestion(userQuery: UserQuery): void {
     this.isLoading = true;
-
     this.chatService.askQuestion(userQuery).subscribe({
       next: (response: Answer) => {
         this.messages.push({
           type: 'ai',
           text: {
-            summary: response.summary,
+            summary: response.summary || "No response received",
             details: response.details,
             showDetails: false
           }
         });
-
         this.isLoading = false;
-        this.cdr.detectChanges();
+        this.scrollToBottom();
       },
       error: error => {
         console.error('Error getting AI response:', error);
-        this.messages.push({ type: 'ai', text: 'Error: Unexpected response from AI' });
+        this.messages.push({
+          type: 'ai',
+          text: {
+            summary: 'Error: Could not get AI response',
+            details: error.message,
+            showDetails: false
+          }
+        });
         this.isLoading = false;
+        this.scrollToBottom();
       }
     });
   }
 
-  // toggleDetails(message: any): void {
-  //   message.text.showDetails = !message.text.showDetails;
-  //   this.cdr.detectChanges();
-  // }
-  toggleDetails(answer: Answer & { showDetails?: boolean }) {
+  toggleDetails(answer: Answer & { showDetails?: boolean }): void {
     answer.showDetails = !answer.showDetails;
+    this.scrollToBottom();
   }
 
   resetChat(): void {
     this.messages = [];
-    this.cdr.detectChanges(); // Ensure UI resets properly
+    this.cdr.detectChanges();
   }
 
   toggleChat(): void {
     this.isOpen = !this.isOpen;
-    this.cdr.detectChanges(); // Ensure the UI updates when toggled
+    if (this.isOpen) {
+      setTimeout(() => this.scrollToBottom(), 50);
+    }
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const messagesContainer = document.querySelector('.chat-messages');
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    });
   }
 }
