@@ -14,9 +14,14 @@
     <!-- Expanded content (only visible when open) -->
     <div class="chat-body" *ngIf="isOpen">
         <!-- Suggested questions section -->
-        <div class="suggested-questions" *ngIf="questions.length > 0 && messages.length === 0">
-            <h4>Suggested Questions</h4>
-            <div class="question-categories">
+        <div class="suggested-questions" *ngIf="questions.length > 0">
+            <div class="suggested-questions-header">
+                <h4>Suggested Questions</h4>
+                <button mat-icon-button (click)="toggleQuestionsCollapse()" class="toggle-questions-btn">
+                    <mat-icon>{{showQuestions ? 'expand_less' : 'expand_more'}}</mat-icon>
+                </button>
+            </div>
+            <div class="question-categories" *ngIf="showQuestions">
                 <div *ngFor="let category of getUniqueCategories()" class="category">
                     <h5>{{category}}</h5>
                     <div class="question-tiles">

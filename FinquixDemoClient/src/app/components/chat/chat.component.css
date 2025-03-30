@@ -220,14 +220,20 @@
 
 /* Questions Styles */
 .suggested-questions {
-    padding: 16px;
-    max-height: 200px;
-    overflow-y: auto;
+    padding: 8px 16px;
     border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.suggested-questions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
 }
 
 .suggested-questions h4 {
-    margin: 0 0 12px 0;
+    margin: 8px 0;
     color: #3f51b5;
     font-size: 14px;
     font-weight: 500;
@@ -237,6 +243,10 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
 }
 
 .category h5 {
@@ -268,4 +278,16 @@
 .question-tile:hover {
     background: #bbdefb;
     transform: translateY(-2px);
+}
+
+.toggle-questions-btn {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+}
+
+.toggle-questions-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
 }

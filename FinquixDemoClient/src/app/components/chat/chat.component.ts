@@ -31,13 +31,17 @@ import { map, Subject, switchMap, takeUntil } from 'rxjs';
 export class ChatComponent implements OnInit, OnDestroy {
   isOpen = false;
   isLoading = false;
+
   userId: number = 1;
   userInput: string = '';
   messages: Array<{
     type: 'user' | 'ai';
     text: string | (Answer & { showDetails?: boolean });
   }> = [];
+
   questions: Question[] = [];
+  showQuestions = true;
+  questionsCollapsed = false;
 
   private destroy$ = new Subject<void>();
 
@@ -75,6 +79,10 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   getQuestionsByCategory(category: string): Question[] {
     return this.questions.filter(q => q.category === category);
+  }
+
+  toggleQuestionsCollapse(): void {
+    this.showQuestions = !this.showQuestions;
   }
 
   selectQuestion(questionText: string): void {
