@@ -10,6 +10,8 @@ using FinquixAPI.Models.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
+using System.Runtime.Intrinsics.X86;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FinquixAPI.Controllers.AI
 {
@@ -78,7 +80,14 @@ namespace FinquixAPI.Controllers.AI
                     ✂️ Please reply with:
                     - A **very short summary answer** (max 2 sentences).
                     - Then a **longer explanation** below a line like: '--- Details ---'
-                    ";
+
+                    - All answers provided must be in consideration and matching with the actual data entered by the user profile, so compare against userData.
+                    - There should be no missmatch between data and calculations, so please double check the responses before wrapping the answer.
+                    - The response should always be dedicated to the question, without providing further advice on other un-related topics.
+                    - The response must properly be broken down by bullets or points of focus instead of everything being crunched up in a continuous sentence.
+                    - Format the long response into a proper readable text.
+                    - There should be a space or new line for text-break the structure of each goal area into separate sections.
+                ";
 
                 var response = await kernel.InvokePromptAsync(aiPrompt);
                 var responseText = response.ToString();
@@ -97,6 +106,9 @@ namespace FinquixAPI.Controllers.AI
             {
                 return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
             }
+
+            //-In the end, i want to see the following outputs from that response:
         }
     }
 }
+
