@@ -183,53 +183,52 @@ namespace FinquixAPI.Controllers.AI
                 //";
 
                 var aiPrompt = $@"
-[ROLE]
-You are a financial assistant for {userData.UserName} at Finquix.
-Your expertise includes: investments, savings, budgeting, stocks, crypto, and personal finance.
+                    [ROLE]
+                    You are a financial assistant for {userData.UserName} at Finquix.
+                    Your expertise includes: investments, savings, budgeting, stocks, crypto, and personal finance.
 
-[USER CONTEXT]
-Income: {userData.Income}
-Savings: {userData.Savings}
-Goals: {string.Join(", ", userData.Goals.Select(g => g.GoalType))}
+                    [USER CONTEXT]
+                    Income: {userData.Income}
+                    Savings: {userData.Savings}
+                    Goals: {string.Join(", ", userData.Goals.Select(g => g.GoalType))}
 
-[MARKET DATA]
-Stocks: {string.Join(", ", stockMarketData.Take(3).Select(m => m.Ticker))} 
-Crypto: {string.Join(", ", cryptoMarketData.Take(3).Select(c => c.Symbol))}
+                    [MARKET DATA]
+                    Stocks: {string.Join(", ", stockMarketData.Take(3).Select(m => m.Ticker))} 
+                    Crypto: {string.Join(", ", cryptoMarketData.Take(3).Select(c => c.Symbol))}
 
-[QUESTION]
-{input.QuestionText}
+                    [QUESTION]
+                    {input.QuestionText}
 
-[RESPONSE FORMAT]
-You must respond with a single valid JSON object in this format:
-- ""summary"": A direct and clear answer to the user's question. Keep it concise (1-2 sentences), include percentages or amounts when relevant.
-- ""details"": A breakdown of supporting reasoning, organized by section (e.g., Income, Risk Analysis, Market Trends, etc.)
+                    [RESPONSE FORMAT]
+                    You must respond with a single valid JSON object in this format:
+                    - ""summary"": A direct and clear answer to the user's question. Keep it concise (1-2 sentences), include percentages or amounts when relevant.
+                    - ""details"": A breakdown of supporting reasoning, organized by section (e.g., Income, Risk Analysis, Market Trends, etc.)
 
-✅ Example:
-{{
-  ""summary"": ""You can safely invest 10–15% of your monthly income in cryptocurrency, based on your savings and financial goals."",
-  ""details"": [
-    {{
-      ""section"": ""Income and Savings"",
-      ""content"": [""You have $6000 income and $8000 in savings""]
-    }},
-    {{
-      ""section"": ""Risk Analysis"",
-      ""content"": [""Moderate risk due to savings buffer"", ""Crypto is volatile but manageable""]
-    }},
-    {{
-      ""section"": ""Investment Recommendation"",
-      ""content"": [""Start with 10% allocation, monitor market performance monthly""]
-    }}
-  ]
-}}
+                    ✅ Example:
+                    {{
+                      ""summary"": ""You can safely invest 10–15% of your monthly income in cryptocurrency, based on your savings and financial goals."",
+                      ""details"": [
+                        {{
+                          ""section"": ""Income and Savings"",
+                          ""content"": [""You have $6000 income and $8000 in savings""]
+                        }},
+                        {{
+                          ""section"": ""Risk Analysis"",
+                          ""content"": [""Moderate risk due to savings buffer"", ""Crypto is volatile but manageable""]
+                        }},
+                        {{
+                          ""section"": ""Investment Recommendation"",
+                          ""content"": [""Start with 10% allocation, monitor market performance monthly""]
+                        }}
+                      ]
+                    }}
 
-If the question is not about finance or is beyond your scope, politely decline while still maintaining valid JSON format.
+                    If the question is not about finance or is beyond your scope, politely decline while still maintaining valid JSON format.
 
-❌ Do not return any markdown.
-❌ Do not include any text outside the JSON.
-❌ Do not explain your reasoning outside the JSON fields.
-";
-
+                    ❌ Do not return any markdown.
+                    ❌ Do not include any text outside the JSON.
+                    ❌ Do not explain your reasoning outside the JSON fields.
+                    ";
 
                 var response = await kernel.InvokePromptAsync(aiPrompt);
                 //var responseText = response.ToString();
@@ -366,7 +365,7 @@ If the question is not about finance or is beyond your scope, politely decline w
                 }
                 catch
                 {
-                    // If we fail to unwrap, return the original
+                    // If fail to unwrap, return the original
                     return parsed;
                 }
             }
@@ -376,7 +375,7 @@ If the question is not about finance or is beyond your scope, politely decline w
 
         private StructuredAnswer CreateFallbackResponse(string responseText)
         {
-            // Try to extract JSON portions if possible
+            //extract JSON portions if possible
             var jsonStart = responseText.IndexOf('{');
             var jsonEnd = responseText.LastIndexOf('}');
 
@@ -390,18 +389,17 @@ If the question is not about finance or is beyond your scope, politely decline w
                 }
             }
 
-            // Complete fallback
             return new StructuredAnswer
             {
                 Summary = ExtractSummary(responseText),
                 Details = new List<AnswerSection>
-        {
-            new AnswerSection
-            {
-                Section = "Full Response",
-                Content = new List<string> { responseText }
-            }
-        }
+                {
+                    new AnswerSection
+                    {
+                        Section = "Full Response",
+                        Content = new List<string> { responseText }
+                    }
+                }
             };
         }
 
@@ -423,7 +421,7 @@ If the question is not about finance or is beyond your scope, politely decline w
         {
             if (string.IsNullOrWhiteSpace(text)) return "No response received";
 
-            // Try to find the first sentence
+            // find the first sentence
             var firstPeriod = text.IndexOf('.');
             if (firstPeriod > 0 && firstPeriod < 200)
             {
