@@ -1,12 +1,14 @@
 /* Chat container styles */
 .chat-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 350px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 90%;
+    margin: 0 auto;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     font-family: 'Roboto', Arial, sans-serif;
     display: flex;
     flex-direction: column;
@@ -14,6 +16,7 @@
     z-index: 1000;
     transition: all 0.3s ease;
     max-height: 60px;
+    border: 2px solid #3f51b5;
 }
 
 .chat-container.expanded {
@@ -26,7 +29,7 @@
 .chat-header {
     background: #3f51b5;
     color: white;
-    padding: 12px 16px;
+    padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -79,11 +82,12 @@
     flex-direction: column;
     flex: 1;
     overflow: hidden;
+    width: 100%;
 }
 
 .chat-messages {
     flex: 1;
-    padding: 16px;
+    padding: 16px 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -92,13 +96,7 @@
 
 /* Message styles */
 .message {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.4;
-    word-wrap: break-word;
-    animation: fadeIn 0.3s ease;
+    max-width: 70%;
 }
 
 .user {
@@ -118,7 +116,7 @@
 /* Input area */
 .chat-input {
     display: flex;
-    padding: 12px;
+    padding: 12px 20px;
     border-top: 1px solid #eee;
     background: #f9f9f9;
 }
@@ -206,15 +204,21 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .chat-container {
-        width: calc(100% - 40px);
-        right: 20px;
-        bottom: 10px;
+        width: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
     }
 
-    .chat-container.expanded {
-        height: 70vh;
+    .message {
+        max-width: 80%;
+    }
+
+    .question-tile {
+        max-width: 100%;
+        /* Single column on mobile */
     }
 }
 
@@ -264,15 +268,8 @@
 }
 
 .question-tile {
-    background: #e3f2fd;
-    color: #1565c0;
-    padding: 8px 12px;
-    border-radius: 16px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    max-width: 100%;
-    word-break: break-word;
+    max-width: calc(50% - 4px);
+    /* Two columns */
 }
 
 .question-tile:hover {

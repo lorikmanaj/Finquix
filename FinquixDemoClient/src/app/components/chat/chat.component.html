@@ -5,10 +5,12 @@
             <span class="chat-icon">💬</span>
             <span class="chat-title">AI Financial Assistant</span>
         </div>
-        <button class="chat-action-btn" *ngIf="isOpen" (click)="resetChat(); $event.stopPropagation()"
-            matTooltip="Reset chat">
-            <mat-icon>refresh</mat-icon>
-        </button>
+        <div class="chat-header-actions">
+            <button class="chat-action-btn" *ngIf="isOpen" (click)="resetChat(); $event.stopPropagation()"
+                matTooltip="Reset chat">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
     </div>
 
     <!-- Expanded content (only visible when open) -->
