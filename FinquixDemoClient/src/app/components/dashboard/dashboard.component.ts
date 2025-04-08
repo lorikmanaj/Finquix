@@ -12,24 +12,23 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    NgIf,
-    NgFor,
-    DecimalPipe,
-    DatePipe,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressBarModule,
-    MatDialogModule,
-    MatSnackBarModule
-  ],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
-  providers: [DecimalPipe, DatePipe]
+    selector: 'app-dashboard',
+    imports: [
+        CommonModule,
+        NgIf,
+        NgFor,
+        DecimalPipe,
+        DatePipe,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressBarModule,
+        MatDialogModule,
+        MatSnackBarModule
+    ],
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.css'],
+    providers: [DecimalPipe, DatePipe]
 })
 export class DashboardComponent implements OnInit {
   userProfile: any = null;

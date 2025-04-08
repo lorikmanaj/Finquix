@@ -11,22 +11,21 @@ import { UserProfileService } from '../../../services/components/user-profile.se
 import { NgFor, NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-onboarding',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FormsModule,
-    NgIf,
-    NgFor,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatSelectModule
-  ],
-  templateUrl: './onboarding.component.html',
-  styleUrls: ['./onboarding.component.css']
+    selector: 'app-onboarding',
+    imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        NgIf,
+        NgFor,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatSelectModule
+    ],
+    templateUrl: './onboarding.component.html',
+    styleUrls: ['./onboarding.component.css']
 })
 export class OnboardingComponent implements OnInit {
   onboardingForm: FormGroup;

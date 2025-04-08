@@ -3,11 +3,10 @@ import { StockMarketService } from '../../../services/components/stock-market.se
 import { NgFor, NgClass, DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-financial-signals',
-  standalone: true,
-  imports: [NgFor, NgClass, DatePipe],
-  templateUrl: './financial-signals.component.html',
-  styleUrl: './financial-signals.component.css'
+    selector: 'app-financial-signals',
+    imports: [NgFor, NgClass, DatePipe],
+    templateUrl: './financial-signals.component.html',
+    styleUrl: './financial-signals.component.css'
 })
 export class FinancialSignalsComponent implements OnInit {
   stockAssets: any[] = [];

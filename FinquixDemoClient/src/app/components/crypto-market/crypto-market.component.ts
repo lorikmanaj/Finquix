@@ -4,17 +4,16 @@ import { NgFor, NgClass, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-crypto-market',
-  standalone: true,
-  imports: [
-    FormsModule,
-    NgFor,
-    NgClass,
-    DecimalPipe,
-    DatePipe
-  ],
-  templateUrl: './crypto-market.component.html',
-  styleUrl: './crypto-market.component.css'
+    selector: 'app-crypto-market',
+    imports: [
+        FormsModule,
+        NgFor,
+        NgClass,
+        DecimalPipe,
+        DatePipe
+    ],
+    templateUrl: './crypto-market.component.html',
+    styleUrl: './crypto-market.component.css'
 })
 export class CryptoMarketComponent implements OnInit {
   cryptoAssets: any[] = [];

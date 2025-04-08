@@ -62,7 +62,7 @@ namespace FinquixAPI.Controllers.AI
                 var cryptoMarketData = cryptoMarketDataFromFrontend ?? await _marketService.GetLatestCryptoDataAsync();
 
                 var aiPrompt = $@"
-                    User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+                    User: {userData.UserName} has an income of {userData.Income -userData.FixedExpenses-userData.VariableExpenses} and savings of {userData.Savings}.
                     Their current financial goals:
                     {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
 

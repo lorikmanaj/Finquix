@@ -14,19 +14,18 @@ import { StockMarketService } from '../../../services/components/stock-market.se
 import { map, Subject, switchMap, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-chat',
-  standalone: true,
-  imports: [
-    FormsModule,
-    NgIf,
-    NgFor,
-    NgClass,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule
-  ],
-  templateUrl: './chat.component.html',
-  styleUrl: './chat.component.css'
+    selector: 'app-chat',
+    imports: [
+        FormsModule,
+        NgIf,
+        NgFor,
+        NgClass,
+        MatIconModule,
+        MatTooltipModule,
+        MatProgressSpinnerModule
+    ],
+    templateUrl: './chat.component.html',
+    styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit, OnDestroy {
   isOpen = false;
