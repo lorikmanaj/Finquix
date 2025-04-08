@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { Answer } from '../../../models/answer';
 import { Question } from '../../../models/question';
 import { ChatService } from '../../../services/components/chat.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
@@ -12,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CryptoMarketService } from '../../../services/components/crypto-market.service';
 import { StockMarketService } from '../../../services/components/stock-market.service';
 import { map, Subject, switchMap, takeUntil } from 'rxjs';
+import { Answer } from '../../../models/answer';
+import { StructuredAnswer } from '../../../models/structuredAnswer';
 
 @Component({
   selector: 'app-chat',
@@ -105,9 +106,83 @@ export class ChatComponent implements OnInit, OnDestroy {
   //   }, 300);
   // }
 
-  isAnswer(text: string | { summary: string; details?: string; showDetails?: boolean }): text is Answer & { showDetails?: boolean } {
-    return typeof text !== 'string' && 'summary' in text;
+  // isAnswer(text: string | { summary: string; details?: string; showDetails?: boolean }): text is Answer & { showDetails?: boolean } {
+  //   return typeof text !== 'string' && 'summary' in text;
+  // }
+
+  isAnswer(text: string | Answer): text is Answer {
+    return typeof text !== 'string' && 'summary' in text && Array.isArray(text.details);
   }
+
+  normalizeApiResponse(response: any): Answer {
+    try {
+      // If it's a stringified JSON object
+      if (typeof response === 'string' && response.includes('"summary"')) {
+        response = JSON.parse(response);
+      }
+
+      // If response.summary is actually a JSON object
+      if (typeof response.summary === 'string' && response.summary.includes('"summary"')) {
+        const maybeNested = JSON.parse(response.summary);
+        if (maybeNested.summary && maybeNested.details) {
+          response = maybeNested;
+        }
+      }
+    } catch (e) {
+      console.error('Parsing fallback error:', e);
+    }
+
+    if (!response || typeof response !== 'object') {
+      return {
+        summary: '⚠️ Could not parse response.',
+        details: [{
+          section: 'Error',
+          content: [String(response)]
+        }],
+        showDetails: false
+      };
+    }
+
+    if (!Array.isArray(response.details)) {
+      response.details = [{
+        section: 'Details',
+        content: [String(response.details || 'No details provided')]
+      }];
+    }
+
+    return {
+      summary: response.summary,
+      details: response.details,
+      showDetails: false
+    };
+  }
+
+  // getNormalizedAnswer(text: string | Answer): Answer {
+  //   if (typeof text === 'string') {
+  //     return {
+  //       summary: text,
+  //       details: text,
+  //       showDetails: false
+  //     };
+  //   }
+
+  //   // Convert string details to array format if needed
+  //   if (typeof text.details === 'string') {
+  //     return {
+  //       ...text,
+  //       details: [{
+  //         section: 'Details',
+  //         content: [text.details]
+  //       }],
+  //       showDetails: text.showDetails || false
+  //     };
+  //   }
+
+  //   return {
+  //     ...text,
+  //     showDetails: text.showDetails || false
+  //   };
+  // }
 
   getAiAnswer(message: any): Answer & { showDetails?: boolean } | null {
     if (typeof message === 'object' && message !== null && 'summary' in message) {
@@ -115,6 +190,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
     return null;
   }
+
+  // getStructuredAnswer(text: any): Answer | null {
+  //   if (typeof text === 'object' && text !== null && 'summary' in text) {
+  //     return text as Answer;
+  //   }
+  //   return null;
+  // }
 
   sendUserInput(): void {
     const input = this.userInput.trim();
@@ -174,15 +256,61 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  private handleAiResponse(response: Answer): void {
-    this.messages.push({
-      type: 'ai',
-      text: {
-        summary: response.summary || "No response received",
-        details: response.details,
-        showDetails: false
-      }
-    });
+  // private handleAiResponse(response: Answer): void {
+  //   this.messages.push({
+  //     type: 'ai',
+  //     text: {
+  //       summary: response.summary || "No response received",
+  //       details: response.details,
+  //       showDetails: false
+  //     }
+  //   });
+  //   this.isLoading = false;
+  //   this.scrollToBottom();
+  // }
+
+  isStructuredAnswer(text: string | StructuredAnswer): text is StructuredAnswer {
+    return typeof text !== 'string' && 'summary' in text && Array.isArray((text as StructuredAnswer).details);
+  }
+
+  getStructuredAnswer(text: string | StructuredAnswer): StructuredAnswer | null {
+    if (this.isStructuredAnswer(text)) {
+      return text;
+    }
+    return null;
+  }
+
+  // private handleAiResponse(response: Answer): void {
+  //   const normalizedResponse = this.getNormalizedAnswer(response);
+  //   this.messages.push({
+  //     type: 'ai',
+  //     text: normalizedResponse
+  //   });
+  //   this.isLoading = false;
+  //   this.scrollToBottom();
+  // }
+  private handleAiResponse(response: StructuredAnswer): void {
+    const normalizedResponse = this.normalizeApiResponse(response);
+
+    if (!normalizedResponse || !normalizedResponse.summary) {
+      this.messages.push({
+        type: 'ai',
+        text: {
+          summary: '⚠️ No valid answer received.',
+          details: [{
+            section: 'Notice',
+            content: ['The assistant could not process your question. Please try again or ask something different.']
+          }],
+          showDetails: false
+        }
+      });
+    } else {
+      this.messages.push({
+        type: 'ai',
+        text: normalizedResponse
+      });
+    }
+
     this.isLoading = false;
     this.scrollToBottom();
   }
@@ -201,7 +329,11 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
 
-  toggleDetails(answer: Answer & { showDetails?: boolean }): void {
+  // toggleDetails(answer: Answer & { showDetails?: boolean }): void {
+  //   answer.showDetails = !answer.showDetails;
+  //   this.scrollToBottom();
+  // }
+  toggleDetails(answer: Answer): void {
     answer.showDetails = !answer.showDetails;
     this.scrollToBottom();
   }
