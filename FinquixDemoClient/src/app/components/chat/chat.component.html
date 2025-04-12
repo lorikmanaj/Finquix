@@ -5,10 +5,12 @@
             <span class="chat-icon">💬</span>
             <span class="chat-title">AI Financial Assistant</span>
         </div>
-        <button class="chat-action-btn" *ngIf="isOpen" (click)="resetChat(); $event.stopPropagation()"
-            matTooltip="Reset chat">
-            <mat-icon>refresh</mat-icon>
-        </button>
+        <div class="chat-header-actions">
+            <button class="chat-action-btn" *ngIf="isOpen" (click)="resetChat(); $event.stopPropagation()"
+                matTooltip="Reset chat">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
     </div>
 
     <!-- Expanded content (only visible when open) -->
@@ -40,7 +42,7 @@
                     <span>{{ msg.text }}</span>
                 </ng-container>
 
-                <ng-container *ngIf="msg.type === 'ai'">
+                <!-- <ng-container *ngIf="msg.type === 'ai'">
                     <ng-container *ngIf="getAiAnswer(msg.text) as aiText">
                         <span>{{ aiText.summary }}</span>
                         <button *ngIf="aiText.details" (click)="toggleDetails(aiText)" class="toggle-details">
@@ -50,7 +52,32 @@
                             {{ aiText.details }}
                         </div>
                     </ng-container>
+                </ng-container> -->
+                <ng-container *ngIf="msg.type === 'ai' && isAnswer(msg.text)">
+                    <div class="ai-message">
+                        <!-- Summary always visible -->
+                        <div class="ai-summary">
+                            <strong>💡 Answer:</strong> {{ msg.text.summary }}
+                        </div>
+
+                        <!-- Show/Hide details toggle -->
+                        <button *ngIf="msg.text.details.length > 0" (click)="toggleDetails(msg.text)"
+                            class="toggle-details">
+                            {{ msg.text.showDetails ? 'Hide Details' : 'Show Details' }}
+                        </button>
+
+                        <!-- Details shown only if toggled -->
+                        <div class="ai-details" *ngIf="msg.text.showDetails">
+                            <div *ngFor="let section of msg.text.details" class="detail-section">
+                                <h5 *ngIf="section.section">{{ section.section }}</h5>
+                                <ul>
+                                    <li *ngFor="let item of section.content">{{ item }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </ng-container>
+
             </div>
 
             <div *ngIf="isLoading" class="loading">
