@@ -201,7 +201,7 @@ namespace FinquixAPI.Controllers.AI
 
                     [RESPONSE FORMAT]
                     You must respond with a single valid JSON object in this format:
-                    - ""summary"": A direct and clear answer to the user's question. Keep it concise (1-2 sentences), include percentages or amounts when relevant.
+                    - ""summary"": A direct and clear answer to the user's question. Keep it concise, include cash amounts instead of %. If the user's question is related to money growth, amount of money to invest or amount of money to spend, please include in your response amount of money in cash taking into consideration user's Income = {userData.Income}, Savings = {userData.Savings}, Fixed Expenses = {userData.FixedExpenses} and Variable Expenses = {userData.VariableExpenses}
                     - ""details"": A breakdown of supporting reasoning, organized by section (e.g., Income, Risk Analysis, Market Trends, etc.)
 
                     ✅ Example:
@@ -210,7 +210,7 @@ namespace FinquixAPI.Controllers.AI
                       ""details"": [
                         {{
                           ""section"": ""Income and Savings"",
-                          ""content"": [""You have $6000 income and $8000 in savings""]
+                          ""content"": [""You have {userData.Income} income and {userData.Savings} in savings""]
                         }},
                         {{
                           ""section"": ""Risk Analysis"",
@@ -225,6 +225,8 @@ namespace FinquixAPI.Controllers.AI
 
                     If the question is not about finance or is beyond your scope, politely decline while still maintaining valid JSON format.
 
+                    
+                    ❌ If the question is related to expected money growth, amount of money to invest or amount of money to spend, please include in your response amount of money in cash taking into consideration Income = {userData.Income}, Savings = {userData.Savings}, Fixed Expenses = {userData.FixedExpenses} and Variable Expenses = {userData.VariableExpenses}
                     ❌ Do not return any markdown.
                     ❌ Do not include any text outside the JSON.
                     ❌ Do not explain your reasoning outside the JSON fields.
