@@ -9,19 +9,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 @Component({
-    selector: 'app-goal-dialog',
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatDialogModule
-    ],
-    templateUrl: './goal-dialog.component.html',
-    styleUrl: './goal-dialog.component.css'
+  selector: 'app-goal-dialog',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatDialogModule
+  ],
+  standalone: true,
+  templateUrl: './goal-dialog.component.html',
+  styleUrl: './goal-dialog.component.css'
 })
 export class GoalDialogComponent implements OnInit {
   goalForm: FormGroup;

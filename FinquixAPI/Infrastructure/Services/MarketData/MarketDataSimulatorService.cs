@@ -25,7 +25,7 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
             await _dataLock.WaitAsync();
             try
             {
-                return _stockDataCache.Values.ToList();
+                return [.. _stockDataCache.Values];
             }
             finally
             {
@@ -38,7 +38,7 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
             await _dataLock.WaitAsync();
             try
             {
-                return _cryptoDataCache.Values.ToList();
+                return [.. _cryptoDataCache.Values];
             }
             finally
             {
@@ -48,6 +48,7 @@ namespace FinquixAPI.Infrastructure.Services.MarketData
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await GenerateAndUpdateMarketData();
             while (!stoppingToken.IsCancellationRequested)
             {
                 await GenerateAndUpdateMarketData();

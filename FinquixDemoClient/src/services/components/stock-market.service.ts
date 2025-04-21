@@ -11,7 +11,7 @@ export class StockMarketService {
   constructor(private apiService: ApiService) { }
 
   // getStockAssets(): Observable<any[]> {
-  //   return timer(0, 30000).pipe(
+  //   return timer(0, 180000).pipe(
   //     switchMap(() => this.apiService.get<any[]>(`${this.path}`))
   //   );
   // }

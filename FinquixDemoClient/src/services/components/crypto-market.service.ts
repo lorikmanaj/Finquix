@@ -19,8 +19,9 @@ export class CryptoMarketService {
   }
 
   getLiveCryptoUpdates(): Observable<any[]> {
-    return timer(0, 30000).pipe(
-      switchMap(() => this.getCryptoAssets())
-    );
+    // return timer(0, 180000).pipe(
+    //   switchMap(() => this.getCryptoAssets())
+    // );
+    return this.getCryptoAssets();
   }
 }

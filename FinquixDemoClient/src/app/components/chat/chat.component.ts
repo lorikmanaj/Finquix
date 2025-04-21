@@ -13,20 +13,22 @@ import { StockMarketService } from '../../../services/components/stock-market.se
 import { map, Subject, switchMap, takeUntil } from 'rxjs';
 import { Answer } from '../../../models/answer';
 import { StructuredAnswer } from '../../../models/structuredAnswer';
+import { MarketDataStoreService } from '../../../services/shared/market-data-store.service';
 
 @Component({
-    selector: 'app-chat',
-    imports: [
-        FormsModule,
-        NgIf,
-        NgFor,
-        NgClass,
-        MatIconModule,
-        MatTooltipModule,
-        MatProgressSpinnerModule
-    ],
-    templateUrl: './chat.component.html',
-    styleUrl: './chat.component.css'
+  selector: 'app-chat',
+  imports: [
+    FormsModule,
+    NgIf,
+    NgFor,
+    NgClass,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule
+  ],
+  standalone: true,
+  templateUrl: './chat.component.html',
+  styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit, OnDestroy {
   isOpen = false;
@@ -50,7 +52,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private stockMarketService: StockMarketService,
-    private cryptoMarketService: CryptoMarketService
+    private cryptoMarketService: CryptoMarketService,
+    private store: MarketDataStoreService
   ) { }
 
   ngOnInit(): void {
@@ -105,10 +108,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   //   }, 300);
   // }
 
-  // isAnswer(text: string | { summary: string; details?: string; showDetails?: boolean }): text is Answer & { showDetails?: boolean } {
-  //   return typeof text !== 'string' && 'summary' in text;
-  // }
-
   isAnswer(text: string | Answer): text is Answer {
     return typeof text !== 'string' && 'summary' in text && Array.isArray(text.details);
   }
@@ -156,33 +155,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     };
   }
 
-  // getNormalizedAnswer(text: string | Answer): Answer {
-  //   if (typeof text === 'string') {
-  //     return {
-  //       summary: text,
-  //       details: text,
-  //       showDetails: false
-  //     };
-  //   }
-
-  //   // Convert string details to array format if needed
-  //   if (typeof text.details === 'string') {
-  //     return {
-  //       ...text,
-  //       details: [{
-  //         section: 'Details',
-  //         content: [text.details]
-  //       }],
-  //       showDetails: text.showDetails || false
-  //     };
-  //   }
-
-  //   return {
-  //     ...text,
-  //     showDetails: text.showDetails || false
-  //   };
-  // }
-
   getAiAnswer(message: any): Answer & { showDetails?: boolean } | null {
     if (typeof message === 'object' && message !== null && 'summary' in message) {
       return message as Answer & { showDetails?: boolean };
@@ -190,14 +162,39 @@ export class ChatComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  // getStructuredAnswer(text: any): Answer | null {
-  //   if (typeof text === 'object' && text !== null && 'summary' in text) {
-  //     return text as Answer;
-  //   }
-  //   return null;
-  // }
-
   sendUserInput(): void {
+    const input = this.userInput.trim();
+    if (!input) return;
+
+    this.messages.push({ type: 'user', text: input });
+    this.userInput = '';
+    this.scrollToBottom();
+    this.isLoading = true;
+
+    const stocks = this.store.stockAssets;
+    const crypto = this.store.cryptoAssets;
+
+    if (!stocks.length || !crypto.length) {
+      console.warn('Market data not ready. Please wait for it to load before asking.');
+      this.isLoading = false;
+      this.messages.push({
+        type: 'ai',
+        text: {
+          summary: '⚠️ Market data not available yet.',
+          details: [{
+            section: 'Info',
+            content: ['Please wait for stock and crypto data to load before asking a question.']
+          }],
+          showDetails: false
+        }
+      });
+      return;
+    }
+
+    this.processQuestionWithContext(input, stocks, crypto);
+  }
+
+  sendUserInputOLD(): void {
     const input = this.userInput.trim();
     if (!input) return;
 
@@ -255,19 +252,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  // private handleAiResponse(response: Answer): void {
-  //   this.messages.push({
-  //     type: 'ai',
-  //     text: {
-  //       summary: response.summary || "No response received",
-  //       details: response.details,
-  //       showDetails: false
-  //     }
-  //   });
-  //   this.isLoading = false;
-  //   this.scrollToBottom();
-  // }
-
   isStructuredAnswer(text: string | StructuredAnswer): text is StructuredAnswer {
     return typeof text !== 'string' && 'summary' in text && Array.isArray((text as StructuredAnswer).details);
   }
@@ -279,15 +263,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  // private handleAiResponse(response: Answer): void {
-  //   const normalizedResponse = this.getNormalizedAnswer(response);
-  //   this.messages.push({
-  //     type: 'ai',
-  //     text: normalizedResponse
-  //   });
-  //   this.isLoading = false;
-  //   this.scrollToBottom();
-  // }
   private handleAiResponse(response: StructuredAnswer): void {
     const normalizedResponse = this.normalizeApiResponse(response);
 
@@ -328,10 +303,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
 
-  // toggleDetails(answer: Answer & { showDetails?: boolean }): void {
-  //   answer.showDetails = !answer.showDetails;
-  //   this.scrollToBottom();
-  // }
   toggleDetails(answer: Answer): void {
     answer.showDetails = !answer.showDetails;
     this.scrollToBottom();

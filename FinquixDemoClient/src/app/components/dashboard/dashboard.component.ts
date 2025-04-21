@@ -26,6 +26,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
         MatDialogModule,
         MatSnackBarModule
     ],
+    standalone: true,
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css'],
     providers: [DecimalPipe, DatePipe]

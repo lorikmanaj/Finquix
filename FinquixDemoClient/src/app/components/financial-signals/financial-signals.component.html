@@ -15,8 +15,8 @@
         </thead>
         <tbody>
             <tr *ngFor="let stock of stockAssets">
-                <td>{{ stock.symbol }}</td>
-                <td>{{ stock.name }}</td>
+                <td>{{ stock.ticker }}</td>
+                <td>{{ stock.companyName }}</td>
                 <td>${{ stock.previousPrice }}</td>
                 <td>${{ stock.currentPrice }}</td>
                 <td [ngClass]="{ 'positive': stock.changePercent > 0, 'negative': stock.changePercent < 0 }">

@@ -30,8 +30,8 @@ namespace FinquixAPI.Infrastructure
             //});
 
             services.AddHttpContextAccessor();
-            //services.AddHostedService<MarketDataSimulatorService>(); // This is a valid hosted service.
-            services.AddScoped<IMarketDataSimulatorService, MarketDataSimulatorService>();
+            //services.AddHostedService<MarketDataSimulatorService>(); //Background Update
+            services.AddScoped<IMarketDataSimulatorService, MarketDataSimulatorService>(); //DI
             services.AddScoped<IFinancialAnalysisService, FinancialAnalysisService>();
 
             return services;

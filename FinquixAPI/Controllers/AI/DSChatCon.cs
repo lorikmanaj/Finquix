@@ -48,6 +48,8 @@ namespace FinquixAPI.Controllers.AI
         List<FinancialSignal> stockMarketDataFromFrontend,
         List<CryptoAsset> cryptoMarketDataFromFrontend)
         {
+            Console.WriteLine($"Frontend crypto data: {cryptoMarketDataFromFrontend[0].Symbol}, Price: {cryptoMarketDataFromFrontend[0].CurrentPrice}, Last Updated: {cryptoMarketDataFromFrontend[0].LastUpdated}");
+
             try
             {
                 var kbuilder = Kernel.CreateBuilder()
@@ -63,124 +65,8 @@ namespace FinquixAPI.Controllers.AI
                 var stockMarketData = stockMarketDataFromFrontend ?? await _marketService.GetLatestStockDataAsync();
                 var cryptoMarketData = cryptoMarketDataFromFrontend ?? await _marketService.GetLatestCryptoDataAsync();
 
-                //var aiPrompt1 = $@"
-                //    User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
-                //    Their current financial goals:
-                //    {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
+                Console.WriteLine($"Frontend crypto data: {cryptoMarketData[0].Symbol}, Price: {cryptoMarketData[0].CurrentPrice}, Last Updated: {cryptoMarketData[0].LastUpdated}");
 
-                //    📊 **Market Overview:**
-                //    🔹 **Stock Market Signals:**
-                //    {string.Join("\n", stockMarketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
-
-                //    🔹 **Crypto Market Signals:**
-                //    {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
-
-                //    💬 **User Question:** {input.QuestionText}
-
-                //    ✂️ Please reply with:
-                //    - A **very short summary answer** (max 2 sentences).
-                //    - Then a **longer explanation** below a line like: '--- Details ---'
-
-                //    - All answers provided must be in consideration and matching with the actual data entered by the user profile, so compare against userData.
-                //    - There should be no missmatch between data and calculations, so please double check the responses before wrapping the answer.
-                //    - The response should always be dedicated to the question, without providing further advice on other un-related topics.
-                //    - The response must properly be broken down by bullets or points of focus instead of everything being crunched up in a continuous sentence.
-                //    - Format the long response into a proper readable text.
-                //    - There should be a space or new line for text-break the structure of each goal area into separate sections.
-                //";
-
-                //var aiPrompt2 = $@"
-                //    [ROLE]
-                //    You are a financial assistant for {userData.UserName} at Finquix.
-                //    Your expertise covers: investments, savings, stocks, crypto, and personal finance.
-
-                //    [USER CONTEXT]
-                //    Income: {userData.Income}
-                //    Savings: {userData.Savings}
-                //    Goals: {string.Join(", ", userData.Goals.Select(g => g.GoalType))}
-
-                //    [MARKET DATA]
-                //    Stocks: {string.Join(", ", stockMarketData.Take(3).Select(m => m.Ticker))}
-                //    Crypto: {string.Join(", ", cryptoMarketData.Take(3).Select(c => c.Symbol))}
-
-                //    [QUESTION]
-                //    {input.QuestionText}
-
-                //    [RULES]
-                //    1. If question is within financial expertise:
-                //       - Use all provided context and data
-                //       - Provide detailed, numerical advice
-                //       - Double-check calculations match user data
-                //       - Format as JSON with summary and sections
-
-                //    2. If question is outside financial expertise:
-                //       - You MAY answer simple factual questions (basic definitions)
-                //       - For complex non-financial questions, politely explain limitations
-                //       - ALWAYS maintain JSON format
-
-                //    3. Response MUST:
-                //       - Be valid JSON in this exact structure
-                //       - Contain no text outside the JSON
-                //       - Have accurate numerical data for financial questions
-                //       - Include 'summary' and 'details' fields
-
-                //    [RESPONSE EXAMPLES]
-                //    Financial question response:
-                //    {{
-                //        ""summary"": ""Recommended 10% crypto allocation"",
-                //        ""details"": [
-                //            {{
-                //                ""section"": ""Risk Analysis"",
-                //                ""content"": [""Your savings allow moderate risk"", ""Crypto markets are volatile""]
-                //            }}
-                //        ]
-                //    }}
-
-                //    [RESPONSE FORMAT]
-                //    Always return a single JSON object with:
-                //    - ""summary"": a **direct and clear answer to the user's question** (max 1-2 sentences)
-                //    - ""details"": breakdown of relevant sections such as income, risk analysis, goals, etc.
-
-                //    For example:
-                //    {{
-                //      ""summary"": ""You can safely invest 10–15% of your income in crypto given your savings and risk profile."",
-                //      ""details"": [
-                //        {{
-                //          ""section"": ""Income and Savings"",
-                //          ""content"": [""You have $6000 in income and $8000 in savings""]
-                //        }},
-                //        {{
-                //          ""section"": ""Risk Analysis"",
-                //          ""content"": [""Moderate risk"", ""Crypto markets are volatile""]
-                //        }}
-                //      ]
-                //    }}
-
-                //    Permitted non-financial response:
-                //    {{
-                //        ""summary"": ""Pristina is Kosovo's capital"",
-                //        ""details"": [
-                //            {{
-                //                ""section"": ""Geography"",
-                //                ""content"": [""Kosovo is in Southeastern Europe""]
-                //            }}
-                //        ]
-                //    }}
-
-                //    Out-of-scope response:
-                //    {{
-                //        ""summary"": ""I specialize in financial topics"",
-                //        ""details"": [
-                //            {{
-                //                ""section"": ""How I can help"",
-                //                ""content"": [
-                //                    ""I can analyze your investment portfolio"",
-                //                    ""Ask me about stocks or crypto markets""
-                //                ]
-                //            }}
-                //        ]
-                //    }}
-                //";
 
                 var aiPrompt = $@"
                     [ROLE]
@@ -290,7 +176,7 @@ namespace FinquixAPI.Controllers.AI
                     //};
                     //    }
 
-                    structuredResponse.Details ??= new List<AnswerSection>();
+                    structuredResponse.Details ??= [];
 
                     Console.WriteLine("Successfully processed AI response");
                     return Ok(structuredResponse);
@@ -394,14 +280,14 @@ namespace FinquixAPI.Controllers.AI
             return new StructuredAnswer
             {
                 Summary = ExtractSummary(responseText),
-                Details = new List<AnswerSection>
-                {
+                Details =
+                [
                     new AnswerSection
                     {
                         Section = "Full Response",
-                        Content = new List<string> { responseText }
+                        Content = [responseText]
                     }
-                }
+                ]
             };
         }
 
@@ -437,13 +323,132 @@ namespace FinquixAPI.Controllers.AI
     public class StructuredAnswer
     {
         public string Summary { get; set; }
-        public List<AnswerSection> Details { get; set; } = new List<AnswerSection>();
+        public List<AnswerSection> Details { get; set; } = [];
     }
 
     public class AnswerSection
     {
         public string Section { get; set; }
-        public List<string> Content { get; set; } = new List<string>();
+        public List<string> Content { get; set; } = [];
     }
 }
 
+
+//var aiPrompt1 = $@"
+//    User: {userData.UserName} has an income of {userData.Income} and savings of {userData.Savings}.
+//    Their current financial goals:
+//    {string.Join("\n", userData.Goals.Select(g => $"- {g.GoalType}: {g.CurrentProgress}/{g.EstimatedValue} saved"))}
+
+//    📊 **Market Overview:**
+//    🔹 **Stock Market Signals:**
+//    {string.Join("\n", stockMarketData.Take(3).Select(m => $"- {m.Ticker}: {m.Recommendation} at {m.CurrentPrice}"))}
+
+//    🔹 **Crypto Market Signals:**
+//    {string.Join("\n", cryptoMarketData.Take(3).Select(c => $"- {c.Symbol}: Current Price {c.CurrentPrice}, Change {c.ChangePercent}%"))}
+
+//    💬 **User Question:** {input.QuestionText}
+
+//    ✂️ Please reply with:
+//    - A **very short summary answer** (max 2 sentences).
+//    - Then a **longer explanation** below a line like: '--- Details ---'
+
+//    - All answers provided must be in consideration and matching with the actual data entered by the user profile, so compare against userData.
+//    - There should be no missmatch between data and calculations, so please double check the responses before wrapping the answer.
+//    - The response should always be dedicated to the question, without providing further advice on other un-related topics.
+//    - The response must properly be broken down by bullets or points of focus instead of everything being crunched up in a continuous sentence.
+//    - Format the long response into a proper readable text.
+//    - There should be a space or new line for text-break the structure of each goal area into separate sections.
+//";
+
+//var aiPrompt2 = $@"
+//    [ROLE]
+//    You are a financial assistant for {userData.UserName} at Finquix.
+//    Your expertise covers: investments, savings, stocks, crypto, and personal finance.
+
+//    [USER CONTEXT]
+//    Income: {userData.Income}
+//    Savings: {userData.Savings}
+//    Goals: {string.Join(", ", userData.Goals.Select(g => g.GoalType))}
+
+//    [MARKET DATA]
+//    Stocks: {string.Join(", ", stockMarketData.Take(3).Select(m => m.Ticker))}
+//    Crypto: {string.Join(", ", cryptoMarketData.Take(3).Select(c => c.Symbol))}
+
+//    [QUESTION]
+//    {input.QuestionText}
+
+//    [RULES]
+//    1. If question is within financial expertise:
+//       - Use all provided context and data
+//       - Provide detailed, numerical advice
+//       - Double-check calculations match user data
+//       - Format as JSON with summary and sections
+
+//    2. If question is outside financial expertise:
+//       - You MAY answer simple factual questions (basic definitions)
+//       - For complex non-financial questions, politely explain limitations
+//       - ALWAYS maintain JSON format
+
+//    3. Response MUST:
+//       - Be valid JSON in this exact structure
+//       - Contain no text outside the JSON
+//       - Have accurate numerical data for financial questions
+//       - Include 'summary' and 'details' fields
+
+//    [RESPONSE EXAMPLES]
+//    Financial question response:
+//    {{
+//        ""summary"": ""Recommended 10% crypto allocation"",
+//        ""details"": [
+//            {{
+//                ""section"": ""Risk Analysis"",
+//                ""content"": [""Your savings allow moderate risk"", ""Crypto markets are volatile""]
+//            }}
+//        ]
+//    }}
+
+//    [RESPONSE FORMAT]
+//    Always return a single JSON object with:
+//    - ""summary"": a **direct and clear answer to the user's question** (max 1-2 sentences)
+//    - ""details"": breakdown of relevant sections such as income, risk analysis, goals, etc.
+
+//    For example:
+//    {{
+//      ""summary"": ""You can safely invest 10–15% of your income in crypto given your savings and risk profile."",
+//      ""details"": [
+//        {{
+//          ""section"": ""Income and Savings"",
+//          ""content"": [""You have $6000 in income and $8000 in savings""]
+//        }},
+//        {{
+//          ""section"": ""Risk Analysis"",
+//          ""content"": [""Moderate risk"", ""Crypto markets are volatile""]
+//        }}
+//      ]
+//    }}
+
+//    Permitted non-financial response:
+//    {{
+//        ""summary"": ""Pristina is Kosovo's capital"",
+//        ""details"": [
+//            {{
+//                ""section"": ""Geography"",
+//                ""content"": [""Kosovo is in Southeastern Europe""]
+//            }}
+//        ]
+//    }}
+
+//    Out-of-scope response:
+//    {{
+//        ""summary"": ""I specialize in financial topics"",
+//        ""details"": [
+//            {{
+//                ""section"": ""How I can help"",
+//                ""content"": [
+//                    ""I can analyze your investment portfolio"",
+//                    ""Ask me about stocks or crypto markets""
+//                ]
+//            }}
+//        ]
+//    }}
+//";

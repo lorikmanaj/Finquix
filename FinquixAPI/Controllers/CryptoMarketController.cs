@@ -13,7 +13,15 @@ namespace FinquixAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CryptoAsset>>> GetCryptoAssets()
         {
-            return Ok(await _marketDataService.GetCryptoAssetsAsync());
+            //return Ok(await _marketDataService.GetCryptoAssetsAsync());
+            //return Ok(await _marketDataService.GetLatestCryptoDataAsync());//Cache, not DB
+            var data = await _marketDataService.GetLatestCryptoDataAsync();
+            if (data.Count == 0)
+            {
+                await _marketDataService.GenerateAndUpdateMarketData();
+                data = await _marketDataService.GetLatestCryptoDataAsync();
+            }
+            return Ok(data);
         }
 
         [HttpPost("simulate-update")]
