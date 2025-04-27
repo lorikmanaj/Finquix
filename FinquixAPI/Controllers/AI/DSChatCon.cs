@@ -50,6 +50,10 @@ namespace FinquixAPI.Controllers.AI
         {
             Console.WriteLine($"Frontend crypto data: {cryptoMarketDataFromFrontend[0].Symbol}, Price: {cryptoMarketDataFromFrontend[0].CurrentPrice}, Last Updated: {cryptoMarketDataFromFrontend[0].LastUpdated}");
 
+            var btcFrontEnd = cryptoMarketDataFromFrontend[0].CurrentPrice;
+            var ethFrontEnd = cryptoMarketDataFromFrontend[1].CurrentPrice;
+            var dogeFrontEnd = cryptoMarketDataFromFrontend[2].CurrentPrice;
+
             try
             {
                 var kbuilder = Kernel.CreateBuilder()
@@ -64,6 +68,10 @@ namespace FinquixAPI.Controllers.AI
 
                 var stockMarketData = stockMarketDataFromFrontend ?? await _marketService.GetLatestStockDataAsync();
                 var cryptoMarketData = cryptoMarketDataFromFrontend ?? await _marketService.GetLatestCryptoDataAsync();
+
+                var btcBackEnd = cryptoMarketData[0].CurrentPrice;
+                var ethBackEnd = cryptoMarketData[1].CurrentPrice;
+                var dogeBackEnd = cryptoMarketData[2].CurrentPrice;
 
                 Console.WriteLine($"Frontend crypto data: {cryptoMarketData[0].Symbol}, Price: {cryptoMarketData[0].CurrentPrice}, Last Updated: {cryptoMarketData[0].LastUpdated}");
 
@@ -87,7 +95,7 @@ namespace FinquixAPI.Controllers.AI
 
                     [RESPONSE FORMAT]
                     You must respond with a single valid JSON object in this format:
-                    - ""summary"": A direct and clear answer to the user's question. Keep it concise, include cash amounts instead of %. If the user's question is related to money growth, amount of money to invest or amount of money to spend, please include in your response amount of money in cash taking into consideration user's Income = {userData.Income}, Savings = {userData.Savings}, Fixed Expenses = {userData.FixedExpenses} and Variable Expenses = {userData.VariableExpenses}
+                    - ""summary"": A direct and clear answer to the user's question. Keep it concise, include cash amounts instead of %. If the user's question is related to investment or money growth, amount of money to invest or amount of money to spend, please include in your response amount of money in cash taking into consideration user's Income = {userData.Income}, Savings = {userData.Savings}, Fixed Expenses = {userData.FixedExpenses}, Variable Expenses = {userData.VariableExpenses} and Financial Goals = {userData.Goals}, also its important to include a financial analysis using the Warren Buffett investment strategy.
                     - ""details"": A breakdown of supporting reasoning, organized by section (e.g., Income, Risk Analysis, Market Trends, etc.)
 
                     ✅ Example:
@@ -111,8 +119,7 @@ namespace FinquixAPI.Controllers.AI
 
                     If the question is not about finance or is beyond your scope, politely decline while still maintaining valid JSON format.
 
-                    
-                    ❌ If the question is related to expected money growth, amount of money to invest or amount of money to spend, please include in your response amount of money in cash taking into consideration Income = {userData.Income}, Savings = {userData.Savings}, Fixed Expenses = {userData.FixedExpenses} and Variable Expenses = {userData.VariableExpenses}
+                    ❌ If the question is related to expected money growth, amount of money to invest or amount of money to spend, please include in your response amount of money in cash taking into consideration Income = {userData.Income}, Savings = {userData.Savings}, Fixed Expenses = {userData.FixedExpenses}, Variable Expenses = {userData.VariableExpenses} and Financial Goals = {userData.Goals}
                     ❌ Do not return any markdown.
                     ❌ Do not include any text outside the JSON.
                     ❌ Do not explain your reasoning outside the JSON fields.
